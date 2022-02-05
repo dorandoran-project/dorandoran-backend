@@ -1,3 +1,6 @@
+// const Room = require("../models/Room");
 const Room = require("../models/Room");
 
-exports.getRooms = async (req, res, next) => { };
+exports.getRooms = async (req, res, next) => {
+  return await Room.find();
+};
