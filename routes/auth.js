@@ -1,11 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const authController = require("../contorollers/authController");
-// const constants = require("../utils/constants");
+const { isLoggedIn, isNotLoggedIn } = require("../middlewares/isLogged");
 
-router.post("/login", authController.login);
+router.post("/login", isLoggedIn, authController.login);
 
-router.post("/refresh", authController.refresh);
-router.get("/logout", authController.logout);
+router.get("/logout", isNotLoggedIn, authController.logout);
 
 module.exports = router;

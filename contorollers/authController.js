@@ -1,52 +1,60 @@
 const jwt = require("jsonwebtoken");
+const createError = require("http-errors");
 const authService = require("../services/authService");
-const roomService = require("../services/roomService");
-const communityService = require("../services/communityService");
 const constants = require("../utils/constants");
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   try {
     const userInfo = req.body;
 
     if (!userInfo.email) {
-      return res.json("이메일 항목에 동의해주세요"); //테스트 중입니다
+      next(createError(401, { message: constants.ERROR_UNAUTHORIZE }));
+      return;
     }
 
     const accessToken = jwt.sign(
       { email: userInfo.email },
       process.env.JWT_ACCESS_TOKEN_SECRET,
       {
-        expiresIn: "1h",
+        expiresIn: "3h",
       }
     );
 
     const refreshToken = jwt.sign(
       { email: userInfo.email },
-      process.env.JWT_REFRESH_SECRET,
+      process.env.JWT_REFRESH_TOKEN_SECRET,
       {
-        expiresIn: "7d",
+        expiresIn: "2d",
       }
     );
 
-    res.cookie("access_token", accessToken, {
+    res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      maxAge: 3600,
+      maxAge: 3 * 60 * 60 * 1000,
+      signed: true,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      maxAge: 48 * 60 * 60 * 1000,
+      signed: true,
     });
 
     let user = await authService.getUser(userInfo.email);
-
     if (!user) {
-      user = await authService.createUser(userInfo, refreshToken);
+      user = await authService.createUser(userInfo, userInfo.location);
     } else {
-      await authService.saveRefreshToken(user, refreshToken);
+      await authService.saveAddress(user, userInfo.address);
     }
 
     res.status(200).json(user);
   } catch (err) {
-    console.log(err);
+    next(createError(401, { message: constants.ERROR_UNAUTHORIZE }));
   }
 };
 
-exports.refresh = async (req, res) => {};
-
-exports.logout = async (req, res, next) => {};
+exports.logout = async (req, res, next) => {
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+  res.json({ success: constants.SUCCESS });
+};
