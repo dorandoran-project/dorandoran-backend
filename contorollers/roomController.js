@@ -1,11 +1,41 @@
+const { array } = require("joi");
 const roomService = require("../services/roomService");
 
 exports.getRooms = async (req, res, next) => {
-  // const rooms = await roomService.getRooms();
-  // res.json({ rooms });
-  res.json({ success: "room data" });
+  try {
+    let lastRoom = req.body.room;
+    const direction = req.body.direction;
+    const roomTotalData = await roomService.getRooms();
+    const index = roomService.getIndex(lastRoom._id, roomTotalData);
+
+    const rooms = roomService.findOnePageRooms(roomTotalData, direction, index);
+
+    res.json({ rooms });
+  } catch (error) {
+    console.log(`server err`, error);
+  }
+};
+
+exports.init = async (req, res) => {
+  try {
+    const allRooms = await roomService.getRooms();
+    const rooms = await roomService.getInitRooms(allRooms);
+
+    res.json({ rooms });
+  } catch (error) {
+    console.log(`server err`, error);
+  }
+};
+
+exports.reload = async (req, res) => {
+  try {
+    let rooms = req.body.roomList;
+    rooms = await roomService.getUpdateRooms(rooms);
+
+    res.json({ rooms });
+  } catch (error) {
+    console.log(`server err`, error);
+  }
 };
 
 exports.createRoom = async (req, res, next) => {};
-
-exports.getRoom = async (req, res, next) => {};
