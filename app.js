@@ -1,5 +1,4 @@
 require("dotenv").config();
-const mongoose = require("mongoose");
 const createError = require("http-errors");
 const express = require("express");
 const cookieParser = require("cookie-parser");
@@ -12,20 +11,7 @@ const videoRouter = require("./routes/video");
 
 const constants = require("./utils/constants");
 
-mongoose.connect(
-  process.env.MONGO_URI,
-  {
-    useNewUrlparser: true,
-    useUnifiedTopology: true,
-  },
-  (err) => {
-    if (err) {
-      console.log("MONGO DB CONNECT FAILURE");
-    } else {
-      console.log("MONGO DB CONNECT SUCCESS");
-    }
-  }
-);
+require("../backend/loaders/db");
 
 const app = express();
 
