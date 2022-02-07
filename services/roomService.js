@@ -1,5 +1,9 @@
 const Room = require("../models/Room");
 
+exports.getInitRooms = (allRooms) => {
+  return allRooms.slice(0, 6);
+};
+
 exports.getRooms = async () => {
   return await Room.find({}).populate("users").exec();
 };
@@ -16,10 +20,6 @@ exports.getIndex = (id, rooms) => {
   return index + 1;
 };
 
-exports.getInitRooms = (allRooms) => {
-  return allRooms.slice(0, 6);
-};
-
 exports.getUpdateRooms = async (rooms) => {
   const updateRooms = [];
 
@@ -30,16 +30,15 @@ exports.getUpdateRooms = async (rooms) => {
     updateRooms.push(newRoom);
   }
 
-  console.log("update Rooms", updateRooms);
   return updateRooms;
 };
 
 exports.findOnePageRooms = (AllRooms, direction, index) => {
   const rooms = [];
-  let roomsCopy = AllRooms.slice(index, AllRooms.length);
   const lastIndex = index - 1;
-  let i = lastIndex - 6;
   const copy = AllRooms.slice();
+  let roomsCopy = AllRooms.slice(index, AllRooms.length);
+  let i = lastIndex - 6;
 
   while (rooms.length < 6) {
     if (direction === "next") {
@@ -55,16 +54,27 @@ exports.findOnePageRooms = (AllRooms, direction, index) => {
 
     if (direction === "prev") {
       if (i < 0) {
-        i = AllRooms.length - 1;
+        i = i + AllRooms.length;
       }
 
       const room = copy[i];
 
-      i--;
+      i -= 1;
 
       rooms.unshift(room);
     }
   }
 
   return rooms;
+};
+
+exports.createRoom = async (roomData, roomNumber) => {
+  const newRoom = await Room.create({
+    room_no: roomNumber + 1,
+    title: roomData.roomTitle,
+    users: [roomData.roomCreator._id],
+    address: roomData.roomCreator.current_address,
+  });
+
+  return newRoom;
 };

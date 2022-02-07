@@ -8,6 +8,6 @@ router.post("/", roomController.getRooms);
 
 router.post("/refresh", roomController.reload);
 
-// router.post("/", roomController.createRoom);
+router.post("/new", roomController.createRoom);
 
 module.exports = router;
