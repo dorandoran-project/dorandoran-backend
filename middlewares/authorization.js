@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const createError = require("http-errors");
 const constants = require("../utils/constants");
 
-exports.refresh = async (req, res, next) => {
+exports.refresh = (req, res, next) => {
   try {
     const userEmail = jwt.verify(
       req.signedCookies.accessToken,
@@ -46,6 +46,7 @@ exports.refresh = async (req, res, next) => {
       } catch (error) {
         res.clearCookie("accessToken");
         res.clearCookie("refreshToken");
+
         return next(createError(400, { message: constants.ERROR_TOKEN }));
       }
     }

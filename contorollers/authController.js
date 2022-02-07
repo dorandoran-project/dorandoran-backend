@@ -8,8 +8,7 @@ exports.login = async (req, res, next) => {
     const userInfo = req.body;
 
     if (!userInfo.email) {
-      next(createError(401, { message: constants.ERROR_UNAUTHORIZE }));
-      return;
+      return next(createError(401, { message: constants.ERROR_UNAUTHORIZE }));
     }
 
     const accessToken = jwt.sign(
@@ -41,6 +40,7 @@ exports.login = async (req, res, next) => {
     });
 
     let user = await authService.getUser(userInfo.email);
+
     if (!user) {
       user = await authService.createUser(userInfo, userInfo.location);
     } else {
@@ -53,7 +53,7 @@ exports.login = async (req, res, next) => {
   }
 };
 
-exports.logout = async (req, res, next) => {
+exports.logout = (req, res, next) => {
   res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
   res.json({ success: constants.SUCCESS });
