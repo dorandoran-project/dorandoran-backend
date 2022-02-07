@@ -28,13 +28,7 @@ const userSchema = new mongoose.Schema({
   },
   current_address: {
     type: String,
-    // required: true,
     minlength: [1, "지역이름은 최소 1자 이상이어야 합니다."],
-  },
-  refresh_token: {
-    type: String,
-    // required: true,
-    // minlength: [validator.isJWT, "jwt 토큰이 형식이 아닙니다."],
   },
 });
 
