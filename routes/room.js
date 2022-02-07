@@ -6,6 +6,4 @@ router.get("/", roomController.getRooms);
 
 router.post("/", roomController.createRoom);
 
-router.get("/:roomId", roomController.getRoom);
-
 module.exports = router;
