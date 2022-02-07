@@ -1,4 +1,3 @@
-const { array } = require("joi");
 const roomService = require("../services/roomService");
 
 exports.getRooms = async (req, res, next) => {
@@ -12,7 +11,7 @@ exports.getRooms = async (req, res, next) => {
 
     res.json({ rooms });
   } catch (error) {
-    console.log(`server err`, error);
+    console.log("server error", error);
   }
 };
 
@@ -23,7 +22,7 @@ exports.init = async (req, res) => {
 
     res.json({ rooms });
   } catch (error) {
-    console.log(`server err`, error);
+    console.log("server error", error);
   }
 };
 
@@ -34,7 +33,7 @@ exports.reload = async (req, res) => {
 
     res.json({ rooms });
   } catch (error) {
-    console.log(`server err`, error);
+    console.log("server error", error);
   }
 };
 
