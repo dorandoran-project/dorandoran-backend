@@ -20,6 +20,10 @@ const roomSchema = new mongoose.Schema({
     required: true,
     minlength: [1, "주소는 최소 1자 이상이어야 합니다."],
   },
+  room_no: {
+    type: Number,
+    required: true,
+  },
 });
 
 module.exports = mongoose.model("Room", roomSchema);
