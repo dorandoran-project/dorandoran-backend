@@ -33,7 +33,6 @@ exports.getUpdateRooms = async (rooms) => {
 
   return updateRooms;
 };
-
 exports.findOnePageRooms = (AllRooms, direction, index) => {
   const rooms = [];
   const lastIndex = index - 1;
@@ -41,32 +40,40 @@ exports.findOnePageRooms = (AllRooms, direction, index) => {
   let nextRooms = AllRooms.slice(index, AllRooms.length);
   let i = lastIndex - 6;
 
-  while (rooms.length < 6) {
-    if (direction === "next") {
-      let room = nextRooms.shift();
-
-      if (!room) {
-        nextRooms = AllRooms.slice();
-        room = nextRooms.shift();
-      }
-
-      rooms.push(room);
+  if (AllRooms.length <= 5) {
+    for (let i = 0; i < AllRooms.length; i++) {
+      rooms.push(AllRooms[i]);
     }
 
-    if (direction === "prev") {
-      if (i < 0) {
-        i = AllRooms.length - 1;
+    return rooms;
+  } else {
+    while (rooms.length < 6) {
+      if (direction === "next") {
+        let room = nextRooms.shift();
+
+        if (!room) {
+          nextRooms = AllRooms.slice();
+          room = nextRooms.shift();
+        }
+
+        rooms.push(room);
       }
 
-      const room = prevRooms[i];
+      if (direction === "prev") {
+        if (i < 0) {
+          i = AllRooms.length - 1;
+        }
 
-      i--;
+        const room = prevRooms[i];
 
-      rooms.unshift(room);
+        i--;
+
+        rooms.unshift(room);
+      }
     }
+
+    return rooms;
   }
-
-  return rooms;
 };
 
 exports.createRoom = async (roomData, roomNumber) => {
