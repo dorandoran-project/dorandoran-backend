@@ -3,6 +3,12 @@ const createError = require("http-errors");
 const authService = require("../services/authService");
 const constants = require("../utils/constants");
 
+exports.getUserInformation = (req, res) => {
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+  res.json({ success: constants.SUCCESS });
+};
+
 exports.login = async (req, res, next) => {
   try {
     const userInfo = req.body;
@@ -53,7 +59,7 @@ exports.login = async (req, res, next) => {
   }
 };
 
-exports.logout = (req, res, next) => {
+exports.logout = (req, res) => {
   res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
   res.json({ success: constants.SUCCESS });
