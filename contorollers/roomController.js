@@ -1,7 +1,7 @@
-const constants = require("../utils/constants");
-const communityService = require("../services/communityService");
 const createError = require("http-errors");
+const communityService = require("../services/communityService");
 const roomService = require("../services/roomService");
+const constants = require("../utils/constants");
 
 exports.init = async (req, res, next) => {
   try {
