@@ -27,6 +27,7 @@ exports.getUpdateRooms = async (rooms) => {
     const newRoom = await Room.findById({ _id: rooms[i]._id })
       .populate("users")
       .exec();
+
     updateRooms.push(newRoom);
   }
 

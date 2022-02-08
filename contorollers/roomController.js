@@ -18,7 +18,6 @@ exports.getRooms = async (req, res, next) => {
   try {
     const roomTotalData = await roomService.getRooms();
     const lastRoom = req.body.room;
-
     const direction = req.body.direction;
     const index = roomService.getIndex(lastRoom._id, roomTotalData);
     const rooms = roomService.findOnePageRooms(roomTotalData, direction, index);
