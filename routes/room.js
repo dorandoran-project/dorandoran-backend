@@ -4,6 +4,6 @@ const roomController = require("../contorollers/roomController");
 
 router.get("/", roomController.getRooms);
 
-router.post("/", roomController.createRoom);
+router.post("/new", roomController.createRoom);
 
 module.exports = router;

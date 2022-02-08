@@ -7,6 +7,8 @@ exports.login = async (req, res, next) => {
   try {
     const userInfo = req.body;
 
+    console.log("userInfo::::", req.body);
+
     if (!userInfo.email) {
       return next(createError(401, { message: constants.ERROR_UNAUTHORIZE }));
     }
@@ -53,7 +55,7 @@ exports.login = async (req, res, next) => {
   }
 };
 
-exports.logout = (req, res, next) => {
+exports.logout = (req, res) => {
   res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
   res.json({ success: constants.SUCCESS });

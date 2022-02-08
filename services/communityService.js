@@ -1,7 +1,5 @@
 const Community = require("../models/Community");
 
-exports.getCommunitys = async (req, res, next) => { };
-
 exports.getLocationRoomCount = async (address) => {
   const total = await Community.find({}).exec();
   let count = 0;

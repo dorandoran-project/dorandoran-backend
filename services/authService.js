@@ -1,7 +1,16 @@
 const User = require("../models/User");
 
 exports.getUser = async (email) => {
-  return await User.findOne({ email });
+  const allUser = await User.find({}).exec();
+  let findUser = null;
+
+  allUser.forEach((user) => {
+    if (email === user.email) {
+      findUser = user;
+    }
+  });
+
+  return findUser;
 };
 
 exports.createUser = async (userInfo) => {
