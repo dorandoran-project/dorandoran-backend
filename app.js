@@ -36,7 +36,7 @@ app.use((req, res, next) => {
   next(createError(404, { message: constants.NOT_FOUND }));
 });
 
-app.use((err, req, res, next) => {
+app.use(function (err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
 
