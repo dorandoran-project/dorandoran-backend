@@ -42,9 +42,9 @@ exports.login = async (req, res, next) => {
     let user = await authService.getUser(userInfo.email);
 
     if (!user) {
-      user = await authService.createUser(userInfo, userInfo.location);
+      user = await authService.createUser(userInfo);
     } else {
-      await authService.saveAddress(user, userInfo.address);
+      await authService.saveAddress(user, userInfo.current_address);
     }
 
     res.status(200).json(user);
