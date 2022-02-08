@@ -1,7 +1,7 @@
-const createError = require("http-errors");
-const roomService = require("../services/roomService");
 const constants = require("../utils/constants");
 const communityService = require("../services/communityService");
+const createError = require("http-errors");
+const roomService = require("../services/roomService");
 
 exports.init = async (req, res, next) => {
   try {
@@ -18,6 +18,7 @@ exports.getRooms = async (req, res, next) => {
   try {
     const roomTotalData = await roomService.getRooms();
     const lastRoom = req.body.room;
+
     const direction = req.body.direction;
     const index = roomService.getIndex(lastRoom._id, roomTotalData);
     const rooms = roomService.findOnePageRooms(roomTotalData, direction, index);
@@ -46,8 +47,6 @@ exports.createRoom = async (req, res, next) => {
     const roomNumber = await communityService.getLocationRoomCount(
       roomData.roomCreator.current_address
     );
-
-    console.log("룸번호::::::", roomNumber);
 
     const newRoom = await roomService.createRoom(roomData, roomNumber);
 

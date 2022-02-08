@@ -36,17 +36,17 @@ exports.getUpdateRooms = async (rooms) => {
 exports.findOnePageRooms = (AllRooms, direction, index) => {
   const rooms = [];
   const lastIndex = index - 1;
-  const copy = AllRooms.slice();
-  let roomsCopy = AllRooms.slice(index, AllRooms.length);
+  const prevRooms = AllRooms.slice();
+  let nextRooms = AllRooms.slice(index, AllRooms.length);
   let i = lastIndex - 6;
 
   while (rooms.length < 6) {
     if (direction === "next") {
-      let room = roomsCopy.shift();
+      let room = nextRooms.shift();
 
       if (!room) {
-        roomsCopy = AllRooms.slice();
-        room = roomsCopy.shift();
+        nextRooms = AllRooms.slice();
+        room = nextRooms.shift();
       }
 
       rooms.push(room);
@@ -54,12 +54,12 @@ exports.findOnePageRooms = (AllRooms, direction, index) => {
 
     if (direction === "prev") {
       if (i < 0) {
-        i = i + AllRooms.length;
+        i = AllRooms.length - 1;
       }
 
-      const room = copy[i];
+      const room = prevRooms[i];
 
-      i -= 1;
+      i--;
 
       rooms.unshift(room);
     }
