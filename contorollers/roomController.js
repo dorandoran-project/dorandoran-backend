@@ -51,7 +51,33 @@ exports.createRoom = async (req, res, next) => {
 
     await communityService.addCommunityRoom(newRoom);
 
-    res.json({ success: constants.SUCCESS });
+    res.status(200).json({ success: constants.SUCCESS });
+  } catch (error) {
+    next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
+  }
+};
+
+exports.joinedUser = async (req, res, next) => {
+  try {
+    const currentUser = req.body.currentUser;
+    const currentRoom = req.body.currentRoom;
+
+    await roomService.getCurrentRoom(currentRoom, currentUser);
+
+    res.status(200).json({ success: constants.SUCCESS });
+  } catch (error) {
+    next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
+  }
+};
+
+exports.deleteUser = async (req, res, next) => {
+  try {
+    const currentRoom = req.body.currentRoom;
+    const currentUser = req.body.currentUser;
+
+    await roomService.deleteUserInfo(currentRoom, currentUser);
+
+    res.status(200).json({ success: constants.SUCCESS });
   } catch (error) {
     next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
   }

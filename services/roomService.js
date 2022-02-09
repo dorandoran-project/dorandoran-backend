@@ -1,4 +1,6 @@
 const Room = require("../models/Room");
+const User = require("../models/User");
+const Community = require("../models/Community");
 
 exports.getInitRooms = (allRooms) => {
   return allRooms.slice(0, 6);
@@ -84,4 +86,42 @@ exports.createRoom = async (roomData, roomNumber) => {
   });
 
   return newRoom;
+};
+
+exports.getCurrentRoom = async (room, user) => {
+  const currentUser = await User.findById({ _id: user }).exec();
+  const currentRoom = await Room.find({ _id: room }).populate("users").exec();
+
+  currentRoom[0].users.push(currentUser);
+  await currentRoom[0].save();
+};
+
+exports.deleteUserInfo = async (roomId, userId) => {
+  const room = await Room.findById({ _id: roomId }).exec();
+
+  const result = room.users
+    .map((user) => {
+      if (user._id.toString() !== userId.toString()) {
+        return user;
+      }
+    })
+    .filter((user) => user !== undefined);
+
+  room.users = result;
+
+  await room.save();
+
+  if (!room.users.length) {
+    const community = await Community.findOne({ name: room.address }).exec();
+
+    const updateCommunity = community.rooms.filter(
+      (roomObjectId) => roomObjectId.toString() !== roomId
+    );
+
+    community.rooms = updateCommunity;
+
+    await community.save();
+
+    await room.deleteOne().exec();
+  }
 };
