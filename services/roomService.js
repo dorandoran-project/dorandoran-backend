@@ -33,6 +33,7 @@ exports.getUpdateRooms = async (rooms) => {
 
   return updateRooms;
 };
+
 exports.findOnePageRooms = (AllRooms, direction, index) => {
   const rooms = [];
   const lastIndex = index - 1;
@@ -41,9 +42,7 @@ exports.findOnePageRooms = (AllRooms, direction, index) => {
   let i = lastIndex - 6;
 
   if (AllRooms.length <= 5) {
-    const rooms = AllRooms.map((room) => {
-      return room;
-    });
+    const rooms = AllRooms;
 
     return rooms;
   } else {
