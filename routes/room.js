@@ -14,8 +14,8 @@ router.post("/", validateRoom, isNotLoggedIn, roomController.getRooms);
 
 router.post(
   "/refresh",
-  isNotLoggedIn,
   validateRefreshRoom,
+  isNotLoggedIn,
   roomController.reload
 );
 
