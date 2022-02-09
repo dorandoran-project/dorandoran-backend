@@ -11,7 +11,7 @@ const videoRouter = require("./routes/video");
 
 const constants = require("./utils/constants");
 
-require("../backend/loaders/db");
+require("./loaders/db");
 
 const app = express();
 
