@@ -41,9 +41,9 @@ exports.findOnePageRooms = (AllRooms, direction, index) => {
   let i = lastIndex - 6;
 
   if (AllRooms.length <= 5) {
-    for (let i = 0; i < AllRooms.length; i++) {
-      rooms.push(AllRooms[i]);
-    }
+    AllRooms.map((room) => {
+      rooms.push(room);
+    });
 
     return rooms;
   } else {
