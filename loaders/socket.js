@@ -1,6 +1,6 @@
 const { Server } = require("socket.io");
 
-module.exports = (server) => {
+module.exports = (server, app) => {
   const io = new Server(server, {
     cors: {
       origin: "http://localhost:3000",
@@ -8,6 +8,8 @@ module.exports = (server) => {
       credentials: true,
     },
   });
+
+  app.set("io", io);
 
   io.on("connection", (socket) => {
     socket.onAny((event) => console.log(`Socket Event: ${event}`));
@@ -33,7 +35,7 @@ module.exports = (server) => {
     socket.on("disconnecting", () => {
       console.log("socket disconnecting");
 
-      if (io[socket["roomName"]].length > 0) {
+      if (io[socket["roomName"]]?.length > 0) {
         io[socket["roomName"]] = io[socket["roomName"]].filter((id) => {
           return id !== socket["peerId"];
         });
