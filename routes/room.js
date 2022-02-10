@@ -10,4 +10,8 @@ router.post("/refresh", roomController.reload);
 
 router.post("/new", roomController.createRoom);
 
+router.post("/joinedUser", roomController.joinedUser);
+
+router.post("/deleteUser", roomController.deleteUser);
+
 module.exports = router;
