@@ -1,4 +1,6 @@
 const Room = require("../models/Room");
+const User = require("../models/User");
+const Community = require("../models/Community");
 
 exports.getInitRooms = (allRooms) => {
   return allRooms.slice(0, 6);
@@ -41,32 +43,36 @@ exports.findOnePageRooms = (AllRooms, direction, index) => {
   let nextRooms = AllRooms.slice(index, AllRooms.length);
   let i = lastIndex - 6;
 
-  while (rooms.length < 6) {
-    if (direction === "next") {
-      let room = nextRooms.shift();
+  if (AllRooms.length <= 5) {
+    return AllRooms;
+  } else {
+    while (rooms.length < 6) {
+      if (direction === "next") {
+        let room = nextRooms.shift();
 
-      if (!room) {
-        nextRooms = AllRooms.slice();
-        room = nextRooms.shift();
+        if (!room) {
+          nextRooms = AllRooms.slice();
+          room = nextRooms.shift();
+        }
+
+        rooms.push(room);
       }
 
-      rooms.push(room);
-    }
+      if (direction === "prev") {
+        if (i < 0) {
+          i = AllRooms.length - 1;
+        }
 
-    if (direction === "prev") {
-      if (i < 0) {
-        i = AllRooms.length - 1;
+        const room = prevRooms[i];
+
+        i--;
+
+        rooms.unshift(room);
       }
-
-      const room = prevRooms[i];
-
-      i--;
-
-      rooms.unshift(room);
     }
+
+    return rooms;
   }
-
-  return rooms;
 };
 
 exports.createRoom = async (roomData, roomNumber) => {
@@ -78,4 +84,42 @@ exports.createRoom = async (roomData, roomNumber) => {
   });
 
   return newRoom;
+};
+
+exports.getCurrentRoom = async (room, user) => {
+  const currentUser = await User.findById({ _id: user }).exec();
+  const currentRoom = await Room.find({ _id: room }).populate("users").exec();
+
+  currentRoom[0].users.push(currentUser);
+  await currentRoom[0].save();
+};
+
+exports.deleteUserInfo = async (roomId, userId) => {
+  const room = await Room.findById({ _id: roomId }).exec();
+
+  const result = room.users
+    .map((user) => {
+      if (user._id.toString() !== userId.toString()) {
+        return user;
+      }
+    })
+    .filter((user) => user !== undefined);
+
+  room.users = result;
+
+  await room.save();
+
+  if (!room.users.length) {
+    const community = await Community.findOne({ name: room.address }).exec();
+
+    const updateCommunity = community.rooms.filter(
+      (roomObjectId) => roomObjectId.toString() !== roomId
+    );
+
+    community.rooms = updateCommunity;
+
+    await community.save();
+
+    await room.deleteOne().exec();
+  }
 };
