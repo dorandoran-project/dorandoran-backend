@@ -35,7 +35,7 @@ module.exports = (server, app) => {
     socket.on("disconnecting", () => {
       console.log("socket disconnecting");
 
-      if (io[socket["roomName"]].length > 0) {
+      if (io[socket["roomName"]]?.length > 0) {
         io[socket["roomName"]] = io[socket["roomName"]].filter((id) => {
           return id !== socket["peerId"];
         });

@@ -42,9 +42,7 @@ exports.findOnePageRooms = (AllRooms, direction, index) => {
   let i = lastIndex - 6;
 
   if (AllRooms.length <= 5) {
-    const rooms = AllRooms;
-
-    return rooms;
+    return AllRooms;
   } else {
     while (rooms.length < 6) {
       if (direction === "next") {
