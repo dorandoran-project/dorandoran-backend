@@ -109,7 +109,7 @@ exports.deleteUserInfo = async (roomId, userId) => {
 
   await room.save();
 
-  if (!room.users.length) {
+  if (room.users.length === 0) {
     const community = await Community.findOne({ name: room.address }).exec();
 
     const updateCommunity = community.rooms.filter(
@@ -120,6 +120,6 @@ exports.deleteUserInfo = async (roomId, userId) => {
 
     await community.save();
 
-    await room.deleteOne().exec();
+    await room.deleteOne();
   }
 };

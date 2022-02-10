@@ -5,6 +5,7 @@ const {
   validateRoom,
   validateRefreshRoom,
   validateNewRoom,
+  validatejoinRoom,
 } = require("../middlewares/validate");
 const { isNotLoggedIn } = require("../middlewares/isLogged");
 
@@ -21,8 +22,9 @@ router.post(
 
 router.post("/new", validateNewRoom, isNotLoggedIn, roomController.createRoom);
 
-router.post("/joinedUser", roomController.joinedUser);
+router.post("/joinedUser", validatejoinRoom, roomController.joinedUser);
 
+// router.post("/deleteUser", validateDeleteInfo, roomController.deleteUser);
 router.post("/deleteUser", roomController.deleteUser);
 
 module.exports = router;
