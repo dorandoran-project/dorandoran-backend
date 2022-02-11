@@ -22,7 +22,7 @@ exports.validateKakaoLogin = (req, res, next) => {
 };
 
 const roomJoiSchema = Joi.object().keys({
-  room: Joi.object().required(),
+  lastRoom: Joi.object().required(),
   direction: Joi.string().required(),
 });
 
@@ -56,6 +56,21 @@ const newRoomJoiSchema = Joi.object().keys({
 
 exports.validateNewRoom = (req, res, next) => {
   const result = newRoomJoiSchema.validate(req.body);
+
+  if (result.error) {
+    return next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
+  }
+
+  next();
+};
+
+const joinRoomJoiSchema = Joi.object().keys({
+  currentRoom: Joi.string().required(),
+  currentUser: Joi.string().required(),
+});
+
+exports.validateJoinRoom = (req, res, next) => {
+  const result = joinRoomJoiSchema.validate(req.body);
 
   if (result.error) {
     return next(createError(400, { message: constants.ERROR_BAD_REQUEST }));

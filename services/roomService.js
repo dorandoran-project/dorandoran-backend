@@ -97,6 +97,22 @@ exports.getCurrentRoom = async (room, user) => {
 exports.deleteUserInfo = async (roomId, userId) => {
   const room = await Room.findById({ _id: roomId }).exec();
 
+  if (room.users.length < 2) {
+    const community = await Community.findOne({ name: room.address }).exec();
+
+    const updateCommunity = community.rooms.filter(
+      (roomObjectId) => roomObjectId.toString() !== roomId
+    );
+
+    community.rooms = updateCommunity;
+
+    await community.save();
+
+    await Room.deleteOne({ _id: roomId }).exec();
+
+    return;
+  }
+
   const result = room.users
     .map((user) => {
       if (user._id.toString() !== userId.toString()) {
@@ -108,18 +124,4 @@ exports.deleteUserInfo = async (roomId, userId) => {
   room.users = result;
 
   await room.save();
-
-  if (!room.users.length) {
-    const community = await Community.findOne({ name: room.address }).exec();
-
-    const updateCommunity = community.rooms.filter(
-      (roomObjectId) => roomObjectId.toString() !== roomId
-    );
-
-    community.rooms = updateCommunity;
-
-    await community.save();
-
-    await room.deleteOne().exec();
-  }
 };
