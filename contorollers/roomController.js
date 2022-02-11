@@ -17,7 +17,7 @@ exports.init = async (req, res, next) => {
 exports.getRooms = async (req, res, next) => {
   try {
     const roomTotalData = await roomService.getRooms();
-    const lastRoom = req.body.room;
+    const lastRoom = req.body.lastRoom;
     const direction = req.body.direction;
     const index = roomService.getIndex(lastRoom._id, roomTotalData);
     const rooms = roomService.findOnePageRooms(roomTotalData, direction, index);
@@ -51,7 +51,7 @@ exports.createRoom = async (req, res, next) => {
 
     await communityService.addCommunityRoom(newRoom);
 
-    res.status(200).json({ success: constants.SUCCESS });
+    res.status(200).json({ newRoom });
   } catch (error) {
     next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
   }
@@ -59,8 +59,8 @@ exports.createRoom = async (req, res, next) => {
 
 exports.joinedUser = async (req, res, next) => {
   try {
-    const currentUser = req.body.currentUser;
     const currentRoom = req.body.currentRoom;
+    const currentUser = req.body.currentUser;
 
     await roomService.getCurrentRoom(currentRoom, currentUser);
 
