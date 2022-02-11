@@ -69,8 +69,8 @@ const currentRoomJoiSchema = Joi.object().keys({
   currentRoom: Joi.string().required(),
 });
 
-exports.validatejoinRoom = async (req, res, next) => {
-  const result = await currentRoomJoiSchema.validateAsync(req.body);
+exports.validatejoinRoom = (req, res, next) => {
+  const result = currentRoomJoiSchema.validate(req.body);
 
   if (result.error) {
     return next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
@@ -79,8 +79,8 @@ exports.validatejoinRoom = async (req, res, next) => {
   next();
 };
 
-exports.validateDeleteInfo = async (req, res, next) => {
-  const result = await currentRoomJoiSchema.validateAsync(req.body);
+exports.validateDeleteInfo = (req, res, next) => {
+  const result = currentRoomJoiSchema.validate(req.body);
 
   if (result.error) {
     return next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
