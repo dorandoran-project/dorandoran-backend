@@ -69,17 +69,7 @@ const currentRoomJoiSchema = Joi.object().keys({
   currentRoom: Joi.string().required(),
 });
 
-exports.validatejoinRoom = (req, res, next) => {
-  const result = currentRoomJoiSchema.validate(req.body);
-
-  if (result.error) {
-    return next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
-  }
-
-  next();
-};
-
-exports.validateDeleteInfo = (req, res, next) => {
+exports.validateUserAndRoom = (req, res, next) => {
   const result = currentRoomJoiSchema.validate(req.body);
 
   if (result.error) {
