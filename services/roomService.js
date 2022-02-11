@@ -113,13 +113,7 @@ exports.deleteUserInfo = async (roomId, userId) => {
     return;
   }
 
-  const result = room.users
-    // .map((user) => {
-    //   if (user._id.toString() !== userId.toString()) {
-    //     return user;
-    //   }
-    // })
-    .filter((user) => user._id.toString() !== userId);
+  const result = room.users.filter((user) => user._id.toString() !== userId);
 
   room.users = result;
 

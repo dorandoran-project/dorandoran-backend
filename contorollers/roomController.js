@@ -59,8 +59,8 @@ exports.createRoom = async (req, res, next) => {
 
 exports.joinedUser = async (req, res, next) => {
   try {
-    const currentUser = req.body.currentUser;
     const currentRoom = req.body.currentRoom;
+    const currentUser = req.body.currentUser;
 
     await roomService.getCurrentRoom(currentRoom, currentUser);
 

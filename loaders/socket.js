@@ -17,6 +17,11 @@ module.exports = (server, app) => {
   characterIo.on("connection", (socket) => {
     socket.onAny((event) => console.log(`Character Socket Event: ${event}`));
 
+    socket.on("enterRoom", (roomInfo) => {
+      socket.join(roomInfo.roomId);
+      socket.to(roomInfo.roomId).emit("welcome", roomInfo);
+    });
+
     socket.on("disconnecting", () => {
       console.log("Character Socket Disconnecting");
     });
@@ -25,8 +30,6 @@ module.exports = (server, app) => {
       console.log("Character Socket Disconnect");
     });
   });
-
-  // videoIo ------------------------------------------------------------------------------
 
   videoIo.on("connection", (socket) => {
     socket.onAny((event) => console.log(`Video Socket Event: ${event}`));
