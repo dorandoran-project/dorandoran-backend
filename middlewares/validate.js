@@ -22,7 +22,7 @@ exports.validateKakaoLogin = (req, res, next) => {
 };
 
 const roomJoiSchema = Joi.object().keys({
-  room: Joi.object().required(),
+  lastRoom: Joi.object().required(),
   direction: Joi.string().required(),
 });
 

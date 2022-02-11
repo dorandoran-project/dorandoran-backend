@@ -6,7 +6,7 @@ const constants = require("../utils/constants");
 exports.init = async (req, res, next) => {
   try {
     const allRooms = await roomService.getRooms();
-    const rooms = await roomService.getInitRooms(allRooms);
+    const rooms = roomService.getInitRooms(allRooms);
 
     res.json({ rooms });
   } catch (error) {
@@ -51,7 +51,7 @@ exports.createRoom = async (req, res, next) => {
 
     await communityService.addCommunityRoom(newRoom);
 
-    res.status(200).json({ success: constants.SUCCESS });
+    res.status(200).json({ newRoom });
   } catch (error) {
     next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
   }
