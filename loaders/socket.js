@@ -41,8 +41,6 @@ module.exports = (server, app) => {
         player.side = side;
         player.moveCount = moveCount;
         characterIo[socket["roomId"]].splice(index, 1, player);
-        console.log("changeCurrentCharacter player", player);
-        console.log('socket["roomId"]>>>>', socket["roomId"]);
         characterIo
           .to(socket["roomId"])
           .emit("movePosition", characterIo[socket["roomId"]]);
@@ -51,9 +49,6 @@ module.exports = (server, app) => {
 
     socket.on("exitUser", () => {
       if (characterIo[socket["roomId"]]?.length > 0) {
-        // const index = characterIo[socket["roomId"]].indexOf(socket.id);
-        // characterIo[socket["roomId"]].splice(index, 1);
-
         characterIo[socket["roomId"]] = characterIo[socket["roomId"]].filter(
           (user) => {
             return user.id !== socket.id;
