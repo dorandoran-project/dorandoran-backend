@@ -27,7 +27,7 @@ module.exports = (server, app) => {
         characterIo[roomId].push(userInfo);
       }
 
-      characterIo.to(roomId).emit("visitedUser", characterIo[roomId]);
+      characterIo.to(roomId).emit("setCharacters", characterIo[roomId]);
     });
 
     socket.on("changeCurrentCharacter", (x, y, side, moveCount) => {
@@ -47,7 +47,7 @@ module.exports = (server, app) => {
 
         characterIo
           .to(socket["roomId"])
-          .emit("movePosition", characterIo[socket["roomId"]]);
+          .emit("setCharacters", characterIo[socket["roomId"]]);
       }
     });
 
@@ -61,7 +61,7 @@ module.exports = (server, app) => {
 
         socket
           .to(socket["roomId"])
-          .emit("userInRoom", characterIo[socket["roomId"]]);
+          .emit("setCharacters", characterIo[socket["roomId"]]);
         socket.leave(socket["roomId"]);
       }
     });
