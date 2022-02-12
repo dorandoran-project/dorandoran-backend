@@ -15,11 +15,12 @@ module.exports = (server, app) => {
   characterIo.on("connection", (socket) => {
     socket.onAny((event) => console.log(`Character Socket Event: ${event}`));
 
-    socket.on("hello", (roomId, x, y, type, side, isChatting) => {
+    socket.on("enterRoom", (userInfo) => {
+      const { roomId } = userInfo;
       socket.join(roomId);
       socket["roomId"] = roomId;
+      userInfo.id = socket.id;
 
-      const userInfo = { roomId, x, y, type, id: socket.id, side, isChatting };
       if (!characterIo[roomId]) {
         characterIo[roomId] = [userInfo];
       } else {
@@ -36,11 +37,14 @@ module.exports = (server, app) => {
         );
 
         const index = characterIo[socket["roomId"]].indexOf(player);
+
         player.x = x;
         player.y = y;
         player.side = side;
         player.moveCount = moveCount;
+
         characterIo[socket["roomId"]].splice(index, 1, player);
+
         characterIo
           .to(socket["roomId"])
           .emit("movePosition", characterIo[socket["roomId"]]);
@@ -69,6 +73,7 @@ module.exports = (server, app) => {
       console.log("Character Socket Disconnect");
     });
   });
+
   videoIo.on("connection", (socket) => {
     socket.onAny((event) => console.log(`Video Socket Event: ${event}`));
     socket.on("enterRoom", (roomName, peerId) => {
