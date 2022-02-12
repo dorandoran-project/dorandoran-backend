@@ -64,13 +64,13 @@ exports.validateNewRoom = (req, res, next) => {
   next();
 };
 
-const joinRoomJoiSchema = Joi.object().keys({
-  currentRoom: Joi.string().required(),
+const currentRoomJoiSchema = Joi.object().keys({
   currentUser: Joi.string().required(),
+  currentRoom: Joi.string().required(),
 });
 
-exports.validateJoinRoom = (req, res, next) => {
-  const result = joinRoomJoiSchema.validate(req.body);
+exports.validateUserAndRoom = (req, res, next) => {
+  const result = currentRoomJoiSchema.validate(req.body);
 
   if (result.error) {
     return next(createError(400, { message: constants.ERROR_BAD_REQUEST }));

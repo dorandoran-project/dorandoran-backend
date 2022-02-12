@@ -15,31 +15,55 @@ module.exports = (server, app) => {
   characterIo.on("connection", (socket) => {
     socket.onAny((event) => console.log(`Character Socket Event: ${event}`));
 
-    socket.on("hello", (roomId, image) => {
+    socket.on("hello", (roomId, x, y, type, side, isChatting) => {
       socket.join(roomId);
       socket["roomId"] = roomId;
 
+      const userInfo = { roomId, x, y, type, id: socket.id, side, isChatting };
       if (!characterIo[roomId]) {
-        characterIo[roomId] = [[socket.id, image]];
+        characterIo[roomId] = [userInfo];
       } else {
-        characterIo[roomId].push([socket.id, image]);
+        characterIo[roomId].push(userInfo);
       }
 
       characterIo.to(roomId).emit("visitedUser", characterIo[roomId]);
     });
 
-    socket.on("moveCharacter", (char) => {
-      console.log('socket["roomId"]', socket["roomId"]);
-      // socket["roomId"] = char;
-      socket.to(socket["roomId"]).emit("movePosition", char);
+    socket.on("changeCurrentCharacter", (x, y, side, moveCount) => {
+      if (characterIo[socket["roomId"]]) {
+        const player = characterIo[socket["roomId"]].find(
+          (player) => player.id === socket.id
+        );
+
+        const index = characterIo[socket["roomId"]].indexOf(player);
+        player.x = x;
+        player.y = y;
+        player.side = side;
+        player.moveCount = moveCount;
+        characterIo[socket["roomId"]].splice(index, 1, player);
+        console.log("changeCurrentCharacter player", player);
+        console.log('socket["roomId"]>>>>', socket["roomId"]);
+        characterIo
+          .to(socket["roomId"])
+          .emit("movePosition", characterIo[socket["roomId"]]);
+      }
     });
-    socket.on("exitUser", (roomId) => {
-      if (characterIo[roomId]?.length > 0) {
-        const index = characterIo[roomId].indexOf(socket.id);
-        characterIo[roomId].splice(index, 1);
-        characterIo.to(roomId).emit("userInRoom", characterIo[roomId]);
-        socket.leave(roomId);
-        characterIo[roomId] = null;
+
+    socket.on("exitUser", () => {
+      if (characterIo[socket["roomId"]]?.length > 0) {
+        // const index = characterIo[socket["roomId"]].indexOf(socket.id);
+        // characterIo[socket["roomId"]].splice(index, 1);
+
+        characterIo[socket["roomId"]] = characterIo[socket["roomId"]].filter(
+          (user) => {
+            return user.id !== socket.id;
+          }
+        );
+
+        socket
+          .to(socket["roomId"])
+          .emit("userInRoom", characterIo[socket["roomId"]]);
+        socket.leave(socket["roomId"]);
       }
     });
 
@@ -58,22 +82,26 @@ module.exports = (server, app) => {
         socket["peerId"] = peerId;
         socket["roomName"] = roomName;
       }
+
       if (!videoIo[roomName]) {
         videoIo[roomName] = [peerId];
       } else {
         videoIo[roomName].push(peerId);
       }
+
       videoIo.to(roomName).emit("roomChange", videoIo[roomName]);
       socket.to(roomName).emit("welcome", peerId);
     });
     socket.on("disconnecting", () => {
       console.log("socket disconnecting");
+
       if (videoIo[socket["roomName"]]?.length > 0) {
         videoIo[socket["roomName"]] = videoIo[socket["roomName"]].filter(
           (id) => {
             return id !== socket["peerId"];
           }
         );
+
         socket.to(socket["roomName"]).emit("bye", socket["peerId"]);
         socket.leave(socket["roomName"]);
         socket["peerId"] = null;
