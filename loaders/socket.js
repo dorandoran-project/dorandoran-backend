@@ -1,5 +1,4 @@
 const { Server } = require("socket.io");
-
 module.exports = (server, app) => {
   const io = new Server(server, {
     cors: {
@@ -8,7 +7,6 @@ module.exports = (server, app) => {
       credentials: true,
     },
   });
-
   app.set("io", io);
 
   const characterIo = io.of("/character");
@@ -16,6 +14,58 @@ module.exports = (server, app) => {
 
   characterIo.on("connection", (socket) => {
     socket.onAny((event) => console.log(`Character Socket Event: ${event}`));
+
+    socket.on("enterRoom", (userInfo) => {
+      const { roomId } = userInfo;
+      socket.join(roomId);
+      socket["roomId"] = roomId;
+      userInfo.id = socket.id;
+
+      if (!characterIo[roomId]) {
+        characterIo[roomId] = [userInfo];
+      } else {
+        characterIo[roomId].push(userInfo);
+      }
+
+      characterIo.to(roomId).emit("setCharacters", characterIo[roomId]);
+    });
+
+    socket.on("changeCurrentCharacter", (x, y, side, moveCount) => {
+      if (characterIo[socket["roomId"]]) {
+        const player = characterIo[socket["roomId"]].find(
+          (player) => player.id === socket.id
+        );
+
+        const index = characterIo[socket["roomId"]].indexOf(player);
+
+        player.x = x;
+        player.y = y;
+        player.side = side;
+        player.moveCount = moveCount;
+
+        characterIo[socket["roomId"]].splice(index, 1, player);
+
+        characterIo
+          .to(socket["roomId"])
+          .emit("setCharacters", characterIo[socket["roomId"]]);
+      }
+    });
+
+    socket.on("exitUser", () => {
+      if (characterIo[socket["roomId"]]?.length > 0) {
+        characterIo[socket["roomId"]] = characterIo[socket["roomId"]].filter(
+          (user) => {
+            return user.id !== socket.id;
+          }
+        );
+
+        socket
+          .to(socket["roomId"])
+          .emit("setCharacters", characterIo[socket["roomId"]]);
+        socket.leave(socket["roomId"]);
+      }
+    });
+
     socket.on("disconnecting", () => {
       console.log("Character Socket Disconnecting");
     });
