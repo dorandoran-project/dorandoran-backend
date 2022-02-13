@@ -16,61 +16,50 @@ module.exports = (server, app) => {
 
   characterIo.on("connection", (socket) => {
     socket.onAny((event) => console.log(`Character Socket Event: ${event}`));
-
-    socket.on("enterRoom", (roomInfo) => {
-      socket.join(roomInfo.roomId);
-      socket.to(roomInfo.roomId).emit("welcome", roomInfo);
-    });
-
     socket.on("disconnecting", () => {
       console.log("Character Socket Disconnecting");
     });
-
     socket.on("disconnect", () => {
       console.log("Character Socket Disconnect");
     });
   });
 
+  const rooms = {};
+
   videoIo.on("connection", (socket) => {
     socket.onAny((event) => console.log(`Video Socket Event: ${event}`));
 
-    socket.on("enterRoom", (roomName, peerId) => {
-      socket.join(roomName);
-
-      if (!socket["peerId"]) {
-        socket["peerId"] = peerId;
-        socket["roomName"] = roomName;
-      }
-
-      if (!videoIo[roomName]) {
-        videoIo[roomName] = [peerId];
+    socket.on("joinRoom", (roomName) => {
+      if (rooms[roomName]) {
+        rooms[roomName].push(socket.id);
       } else {
-        videoIo[roomName].push(peerId);
+        rooms[roomName] = [socket.id];
       }
 
-      videoIo.to(roomName).emit("roomChange", videoIo[roomName]);
-      socket.to(roomName).emit("welcome", peerId);
-    });
-
-    socket.on("disconnecting", () => {
-      console.log("socket disconnecting");
-
-      if (videoIo[socket["roomName"]]?.length > 0) {
-        videoIo[socket["roomName"]] = videoIo[socket["roomName"]].filter(
-          (id) => {
-            return id !== socket["peerId"];
-          }
-        );
-
-        socket.to(socket["roomName"]).emit("bye", socket["peerId"]);
-        socket.leave(socket["roomName"]);
-        socket["peerId"] = null;
-        socket["roomName"] = null;
+      // const otherUser = rooms[roomName].find((id) => id !== socket.id);
+      // if (otherUser) {
+      //   socket.emit("otherUser", otherUser);
+      // socket.to(otherUser).emit("userJoined", socket.id);
+      // }
+      const otherUsers = rooms[roomName].filter((id) => id !== socket.id);
+      if (otherUsers.length) {
+        socket.to(roomName).emit("otherUser", otherUsers);
+        otherUsers.forEach((userId) => {
+          socket(userId).emit("userJoined", socket.id);
+        });
       }
     });
 
-    socket.on("disconnect", () => {
-      console.log("socket disconnect");
+    socket.on("offer", (payload) => {
+      videoIo.to(payload.target).emit("offer", payload);
+    });
+
+    socket.on("answer", (payload) => {
+      videoIo.to(payload.target).emit("answer", payload);
+    });
+
+    socket.on("iceCandidate", (incoming) => {
+      videoIo.to(incoming.target).emit("iceCandidate", incoming.candidate);
     });
   });
 };
