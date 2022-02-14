@@ -7,6 +7,7 @@ module.exports = (server, app) => {
       credentials: true,
     },
   });
+
   app.set("io", io);
 
   const characterIo = io.of("/character");
@@ -21,27 +22,86 @@ module.exports = (server, app) => {
       socket["roomId"] = roomId;
       userInfo.id = socket.id;
 
+      const makeRandomGenderImage = () => {
+        const randomImage = ["1.png", "2.png"];
+        const randomIndex = Math.floor(Math.random() * 2);
+
+        return randomImage[randomIndex];
+      };
+
+      if (userInfo.gender === "female") {
+        userInfo.type = `${userInfo.type}female${makeRandomGenderImage()}`;
+      } else {
+        userInfo.type = `${userInfo.type}male${makeRandomGenderImage()}`;
+      }
+
       if (!characterIo[roomId]) {
         characterIo[roomId] = [userInfo];
       } else {
         characterIo[roomId].push(userInfo);
       }
 
+      if (characterIo["positions"]) {
+        characterIo
+          .to(roomId)
+          .emit("setCurrentUserPosition", characterIo["positions"]);
+      }
+
       characterIo.to(roomId).emit("setCharacters", characterIo[roomId]);
     });
 
-    socket.on("changeCurrentCharacter", (x, y, side, moveCount) => {
+    socket.on("enterChattingRoom", (posIndex, x, y, roomId) => {
+      if (posIndex) {
+        if (!characterIo["positions"]) {
+          characterIo["positions"] = [{ inToRoom: true, posIndex, x, y }];
+        } else {
+          const chairPosition = characterIo["positions"].find(
+            (position) => position.posIndex === posIndex
+          );
+
+          if (chairPosition) {
+            chairPosition.inToRoom = true;
+            const index = characterIo["positions"].indexOf(chairPosition);
+            characterIo["positions"].splice(index, 1, chairPosition);
+          } else {
+            characterIo["positions"].push({ inToRoom: true, posIndex, x, y });
+          }
+        }
+      }
+
+      characterIo
+        .to(roomId)
+        .emit("setCurrentUserPosition", characterIo["positions"]);
+    });
+
+    socket.on("exitChattingRoom", (posIndex) => {
+      if (characterIo["positions"]) {
+        const chairPosition = characterIo["positions"].find(
+          (position) => position.posIndex === posIndex
+        );
+
+        chairPosition.inToRoom = false;
+        const index = characterIo["positions"].indexOf(chairPosition);
+        characterIo["positions"].splice(index, 1, chairPosition);
+
+        characterIo
+          .to(socket["roomId"])
+          .emit("setCurrentUserPosition", characterIo["positions"]);
+      }
+    });
+
+    socket.on("changeCurrentCharacter", (x, y, side, moveCount, isChatting) => {
       if (characterIo[socket["roomId"]]) {
         const player = characterIo[socket["roomId"]].find(
           (player) => player.id === socket.id
         );
 
         const index = characterIo[socket["roomId"]].indexOf(player);
-
         player.x = x;
         player.y = y;
         player.side = side;
         player.moveCount = moveCount;
+        player.isChatting = isChatting;
 
         characterIo[socket["roomId"]].splice(index, 1, player);
 
@@ -59,7 +119,7 @@ module.exports = (server, app) => {
           }
         );
 
-        socket
+        characterIo
           .to(socket["roomId"])
           .emit("setCharacters", characterIo[socket["roomId"]]);
         socket.leave(socket["roomId"]);
@@ -69,6 +129,7 @@ module.exports = (server, app) => {
     socket.on("disconnecting", () => {
       console.log("Character Socket Disconnecting");
     });
+
     socket.on("disconnect", () => {
       console.log("Character Socket Disconnect");
     });
@@ -76,40 +137,33 @@ module.exports = (server, app) => {
 
   videoIo.on("connection", (socket) => {
     socket.onAny((event) => console.log(`Video Socket Event: ${event}`));
-    socket.on("enterRoom", (roomName, peerId) => {
+
+    socket.on("joinRoom", (roomName) => {
       socket.join(roomName);
-      if (!socket["peerId"]) {
-        socket["peerId"] = peerId;
-        socket["roomName"] = roomName;
-      }
 
-      if (!videoIo[roomName]) {
-        videoIo[roomName] = [peerId];
+      if (videoIo[roomName]) {
+        videoIo[roomName].push(socket.id);
       } else {
-        videoIo[roomName].push(peerId);
+        videoIo[roomName] = [socket.id];
       }
 
-      videoIo.to(roomName).emit("roomChange", videoIo[roomName]);
-      socket.to(roomName).emit("welcome", peerId);
-    });
-    socket.on("disconnecting", () => {
-      console.log("socket disconnecting");
-
-      if (videoIo[socket["roomName"]]?.length > 0) {
-        videoIo[socket["roomName"]] = videoIo[socket["roomName"]].filter(
-          (id) => {
-            return id !== socket["peerId"];
-          }
-        );
-
-        socket.to(socket["roomName"]).emit("bye", socket["peerId"]);
-        socket.leave(socket["roomName"]);
-        socket["peerId"] = null;
-        socket["roomName"] = null;
+      const otherUser = videoIo[roomName].find((id) => id !== socket.id);
+      if (otherUser) {
+        socket.emit("otherUser", otherUser);
+        socket.to(otherUser).emit("userJoined", socket.id);
       }
     });
-    socket.on("disconnect", () => {
-      console.log("socket disconnect");
+
+    socket.on("offer", (payload) => {
+      videoIo.to(payload.target).emit("offer", payload);
+    });
+
+    socket.on("answer", (payload) => {
+      videoIo.to(payload.target).emit("answer", payload);
+    });
+
+    socket.on("iceCandidate", (incoming) => {
+      videoIo.to(incoming.target).emit("iceCandidate", incoming.candidate);
     });
   });
 };
