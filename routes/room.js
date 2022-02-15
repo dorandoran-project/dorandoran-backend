@@ -22,6 +22,8 @@ router.post(
 
 router.post("/new", validateNewRoom, isNotLoggedIn, roomController.createRoom);
 
+router.post("/checkUserCount", roomController.countUsers);
+
 router.post("/joinedUser", validateUserAndRoom, roomController.joinedUser);
 
 router.post("/deleteUser", validateUserAndRoom, roomController.deleteUser);

@@ -57,6 +57,22 @@ exports.createRoom = async (req, res, next) => {
   }
 };
 
+exports.countUsers = async (req, res, next) => {
+  try {
+    const roomId = req.body.roomId;
+
+    console.log(roomId);
+
+    const userCount = await roomService.getCountUser(roomId);
+
+    console.log("userCount", userCount);
+
+    res.json({ userCount });
+  } catch (error) {
+    next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
+  }
+};
+
 exports.joinedUser = async (req, res, next) => {
   try {
     const currentRoom = req.body.currentRoom;
