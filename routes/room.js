@@ -28,4 +28,6 @@ router.post("/joinedUser", validateUserAndRoom, roomController.joinedUser);
 
 router.post("/deleteUser", validateUserAndRoom, roomController.deleteUser);
 
+router.post("/detail", roomController.getCurrentRoom);
+
 module.exports = router;
