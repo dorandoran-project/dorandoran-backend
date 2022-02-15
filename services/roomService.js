@@ -113,15 +113,14 @@ exports.deleteUserInfo = async (roomId, userId) => {
     return;
   }
 
-  const result = room.users
-    .map((user) => {
-      if (user._id.toString() !== userId.toString()) {
-        return user;
-      }
-    })
-    .filter((user) => user !== undefined);
+  const result = room.users.filter((user) => user._id.toString() !== userId);
 
   room.users = result;
 
   await room.save();
+};
+
+exports.getUsers = async (roomId) => {
+  const room = await Room.findById({ _id: roomId }).exec();
+  return room;
 };

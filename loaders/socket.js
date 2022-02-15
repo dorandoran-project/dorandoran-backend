@@ -1,4 +1,5 @@
 const { Server } = require("socket.io");
+
 module.exports = (server, app) => {
   const io = new Server(server, {
     cors: {
@@ -7,13 +8,14 @@ module.exports = (server, app) => {
       credentials: true,
     },
   });
+
   app.set("io", io);
 
   const characterIo = io.of("/character");
   const videoIo = io.of("/video");
 
   characterIo.on("connection", (socket) => {
-    socket.onAny((event) => console.log(`Character Socket Event: ${event}`));
+    // socket.onAny((event) => console.log(`Character Socket Event: ${event}`));
 
     socket.on("enterRoom", (userInfo) => {
       const { roomId } = userInfo;
@@ -30,7 +32,7 @@ module.exports = (server, app) => {
       characterIo.to(roomId).emit("setCharacters", characterIo[roomId]);
     });
 
-    socket.on("changeCurrentCharacter", (x, y, side, moveCount) => {
+    socket.on("changeCurrentCharacter", (x, y, side, moveCount, isChatting) => {
       if (characterIo[socket["roomId"]]) {
         const player = characterIo[socket["roomId"]].find(
           (player) => player.id === socket.id
@@ -42,6 +44,7 @@ module.exports = (server, app) => {
         player.y = y;
         player.side = side;
         player.moveCount = moveCount;
+        player.isChatting = isChatting;
 
         characterIo[socket["roomId"]].splice(index, 1, player);
 
@@ -74,42 +77,66 @@ module.exports = (server, app) => {
     });
   });
 
+  const users = [];
   videoIo.on("connection", (socket) => {
     socket.onAny((event) => console.log(`Video Socket Event: ${event}`));
-    socket.on("enterRoom", (roomName, peerId) => {
+
+    socket.on("enterRoom", (roomName) => {
       socket.join(roomName);
-      if (!socket["peerId"]) {
-        socket["peerId"] = peerId;
-        socket["roomName"] = roomName;
-      }
+      users.push(socket.id);
+      videoIo[socket.id] = roomName;
 
-      if (!videoIo[roomName]) {
-        videoIo[roomName] = [peerId];
+      if (videoIo[roomName]) {
+        videoIo[roomName].push(socket.id);
       } else {
-        videoIo[roomName].push(peerId);
+        videoIo[roomName] = [socket.id];
       }
 
-      videoIo.to(roomName).emit("roomChange", videoIo[roomName]);
-      socket.to(roomName).emit("welcome", peerId);
+      const otherUsers = videoIo[roomName].filter((id) => id !== socket.id);
+      socket.emit("enterRoom", otherUsers);
     });
-    socket.on("disconnecting", () => {
-      console.log("socket disconnecting");
 
-      if (videoIo[socket["roomName"]]?.length > 0) {
-        videoIo[socket["roomName"]] = videoIo[socket["roomName"]].filter(
-          (id) => {
-            return id !== socket["peerId"];
-          }
-        );
+    socket.on("offer", (payload) => {
+      videoIo.to(payload.target).emit("offer", {
+        signal: payload.signal,
+        caller: payload.caller,
+      });
+    });
 
-        socket.to(socket["roomName"]).emit("bye", socket["peerId"]);
-        socket.leave(socket["roomName"]);
-        socket["peerId"] = null;
-        socket["roomName"] = null;
+    socket.on("answer", (payload) => {
+      videoIo.to(payload.target).emit("answer", {
+        signal: payload.signal,
+        caller: socket.id,
+      });
+    });
+
+    socket.on("leaveRoom", () => {
+      const roomName = videoIo[socket.id];
+
+      if (videoIo[roomName]) {
+        videoIo[roomName] = videoIo[roomName].filter((id) => id !== socket.id);
       }
+
+      videoIo[socket.id] = undefined;
+      socket.to(roomName).emit("exitRoom", socket.id);
+      socket.leave(roomName);
     });
+
     socket.on("disconnect", () => {
-      console.log("socket disconnect");
+      const user = users.find((id) => id === socket.id);
+      const roomName = videoIo[socket.id];
+
+      if (user) {
+        if (videoIo[roomName]) {
+          videoIo[roomName] = videoIo[roomName].filter(
+            (id) => id !== socket.id
+          );
+        }
+
+        socket.to(roomName).emit("exitRoom", socket.id);
+        socket.leave(roomName);
+        videoIo[socket.id] = undefined;
+      }
     });
   });
 };
