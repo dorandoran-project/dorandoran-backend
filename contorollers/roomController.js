@@ -6,7 +6,7 @@ const constants = require("../utils/constants");
 exports.init = async (req, res, next) => {
   try {
     const allRooms = await roomService.getRooms();
-    const rooms = await roomService.getInitRooms(allRooms);
+    const rooms = roomService.getInitRooms(allRooms);
 
     res.json({ rooms });
   } catch (error) {
@@ -78,6 +78,17 @@ exports.deleteUser = async (req, res, next) => {
     await roomService.deleteUserInfo(currentRoom, currentUser);
 
     res.status(200).json({ success: constants.SUCCESS });
+  } catch (error) {
+    next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
+  }
+};
+
+exports.getCurrentRoom = async (req, res, next) => {
+  try {
+    const roomId = req.body.roomId;
+    const room = await roomService.getUsers(roomId);
+
+    res.status(200).json({ room });
   } catch (error) {
     next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
   }
