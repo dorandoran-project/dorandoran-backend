@@ -124,17 +124,17 @@ module.exports = (server, app) => {
 
     socket.on("disconnect", () => {
       const user = users.find((id) => id === socket.id);
-      const roonName = videoIo[socket.id];
+      const roomName = videoIo[socket.id];
 
       if (user) {
-        if (videoIo[roonName]) {
-          videoIo[roonName] = videoIo[roonName].filter(
+        if (videoIo[roomName]) {
+          videoIo[roomName] = videoIo[roomName].filter(
             (id) => id !== socket.id
           );
         }
 
-        socket.to(roonName).emit("exitRoom", socket.id);
-        socket.leave(roonName);
+        socket.to(roomName).emit("exitRoom", socket.id);
+        socket.leave(roomName);
         videoIo[socket.id] = undefined;
       }
     });

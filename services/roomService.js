@@ -119,3 +119,8 @@ exports.deleteUserInfo = async (roomId, userId) => {
 
   await room.save();
 };
+
+exports.getUsers = async (roomId) => {
+  const room = await Room.findById({ _id: roomId }).exec();
+  return room;
+};

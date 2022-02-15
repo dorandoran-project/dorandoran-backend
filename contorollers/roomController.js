@@ -82,3 +82,14 @@ exports.deleteUser = async (req, res, next) => {
     next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
   }
 };
+
+exports.getCurrentRoom = async (req, res, next) => {
+  try {
+    const roomId = req.body.roomId;
+    const room = await roomService.getUsers(roomId);
+
+    res.status(200).json({ room });
+  } catch (error) {
+    next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
+  }
+};
