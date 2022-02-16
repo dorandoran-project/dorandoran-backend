@@ -163,7 +163,7 @@ module.exports = (server, app) => {
         socket.emit("enterRoom", otherUsers);
       }
 
-      socket.to(roomName).emit("participants", participants[roomName]);
+      videoIo.to(roomName).emit("participants", participants);
     });
 
     socket.on("offer", (payload) => {
@@ -196,7 +196,7 @@ module.exports = (server, app) => {
 
       participants[socket.id] = undefined;
       videoIo[socket.id] = undefined;
-      socket.to(roomName).emit("exitRoom", socket.id, leaveUserName);
+      socket.to(roomName).emit("exitRoom", socket.id, participants);
       socket.leave(roomName);
     });
 

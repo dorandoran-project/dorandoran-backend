@@ -7,7 +7,6 @@ const cors = require("cors");
 
 const authRouter = require("./routes/auth");
 const roomRouter = require("./routes/room");
-const videoRouter = require("./routes/video");
 
 const constants = require("./utils/constants");
 
@@ -30,7 +29,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/auth", authRouter);
 app.use("/rooms", roomRouter);
-app.use("/videoChat", videoRouter);
 
 app.use((req, res, next) => {
   next(createError(404, { message: constants.NOT_FOUND }));
