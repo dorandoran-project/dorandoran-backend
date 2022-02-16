@@ -1,5 +1,5 @@
-const { Server } = require("socket.io");
 const makeRandomGenderImage = require("../utils/makeRandomGenderImage");
+const { Server } = require("socket.io");
 
 module.exports = (server, app) => {
   const io = new Server(server, {
