@@ -78,3 +78,17 @@ exports.validateUserAndRoom = (req, res, next) => {
 
   next();
 };
+
+const detailRoomJoiSchema = Joi.object().keys({
+  roomId: Joi.string().required(),
+});
+
+exports.validateDetailRoom = (req, res, next) => {
+  const result = detailRoomJoiSchema.validate(req.body);
+
+  if (result.error) {
+    return next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
+  }
+
+  next();
+};
