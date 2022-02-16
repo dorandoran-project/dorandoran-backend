@@ -1,12 +1,32 @@
 const express = require("express");
 const router = express.Router();
 const roomController = require("../contorollers/roomController");
-const constants = require("../utils/constants");
+const {
+  validateRoom,
+  validateRefreshRoom,
+  validateNewRoom,
+  validateUserAndRoom,
+  validateDetailRoom,
+} = require("../middlewares/validate");
+const { isNotLoggedIn } = require("../middlewares/isLogged");
 
-router.get("/", roomController.getRooms);
+router.get("/", isNotLoggedIn, roomController.init);
 
-router.post("/", roomController.createRoom);
+router.post("/", validateRoom, isNotLoggedIn, roomController.getRooms);
 
-router.get("/:roomId", roomController.getRoom);
+router.post(
+  "/refresh",
+  validateRefreshRoom,
+  isNotLoggedIn,
+  roomController.reload
+);
+
+router.post("/new", validateNewRoom, isNotLoggedIn, roomController.createRoom);
+
+router.post("/joinedUser", validateUserAndRoom, roomController.joinedUser);
+
+router.post("/deleteUser", validateUserAndRoom, roomController.deleteUser);
+
+router.post("/detail", validateDetailRoom, roomController.getCurrentRoom);
 
 module.exports = router;

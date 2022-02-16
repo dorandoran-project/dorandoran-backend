@@ -1,5 +1,4 @@
 require("dotenv").config();
-const mongoose = require("mongoose");
 const createError = require("http-errors");
 const express = require("express");
 const cookieParser = require("cookie-parser");
@@ -8,45 +7,30 @@ const cors = require("cors");
 
 const authRouter = require("./routes/auth");
 const roomRouter = require("./routes/room");
-const videoRouter = require("./routes/video");
 
 const constants = require("./utils/constants");
 
-mongoose.connect(
-  process.env.MONGO_URI,
-  {
-    useNewUrlparser: true,
-    useUnifiedTopology: true,
-  },
-  (err) => {
-    if (err) {
-      console.log("MONGO DB CONNECT FAILURE");
-    } else {
-      console.log("MONGO DB CONNECT SUCCESS");
-    }
-  }
-);
+require("./loaders/db");
 
 const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.CLIENT_URI,
     credentials: true,
     methods: ["GET", "POST"],
   })
 );
 
 app.use(logger("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use("/auth", authRouter);
 app.use("/rooms", roomRouter);
-app.use("/videoChat", videoRouter);
 
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
   next(createError(404, { message: constants.NOT_FOUND }));
 });
 
