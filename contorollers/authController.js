@@ -55,7 +55,7 @@ exports.login = async (req, res, next) => {
 
     res.status(200).json(user);
   } catch (err) {
-    next(createError(401, { message: constants.ERROR_UNAUTHORIZE }));
+    next(createError(401, { message: constants.ERROR_sUNAUTHORIZE }));
   }
 };
 
