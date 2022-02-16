@@ -4,7 +4,7 @@ const authController = require("../contorollers/authController");
 const { isLoggedIn, isNotLoggedIn } = require("../middlewares/isLogged");
 const { validateKakaoLogin } = require("../middlewares/validate");
 
-router.get("/", authController.getUserInformation);
+router.get("/", authController.clear);
 
 router.post("/login", validateKakaoLogin, isLoggedIn, authController.login);
 
