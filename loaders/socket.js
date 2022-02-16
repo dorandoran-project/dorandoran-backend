@@ -1,4 +1,5 @@
 const { Server } = require("socket.io");
+const makeRandomGenderImage = require("../utils/makeRandomGenderImage");
 
 module.exports = (server, app) => {
   const io = new Server(server, {
@@ -22,13 +23,6 @@ module.exports = (server, app) => {
       socket.join(roomId);
       socket["roomId"] = roomId;
       userInfo.id = socket.id;
-
-      const makeRandomGenderImage = () => {
-        const randomImage = ["1.png", "2.png"];
-        const randomIndex = Math.floor(Math.random() * 2);
-
-        return randomImage[randomIndex];
-      };
 
       if (userInfo.gender === "female") {
         userInfo.type = `${userInfo.type}female${makeRandomGenderImage()}`;
