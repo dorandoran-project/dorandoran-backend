@@ -13,7 +13,6 @@ module.exports = (server, app) => {
 
   const characterIo = io.of("/character");
   const videoIo = io.of("/video");
-
   const makeRandomGenderImage = () => {
     const randomImage = ["1.png", "2.png"];
     const randomIndex = Math.floor(Math.random() * 2);
