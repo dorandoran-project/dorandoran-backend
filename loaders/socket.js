@@ -1,4 +1,3 @@
-const makeRandomGenderImage = require("../utils/makeRandomGenderImage");
 const { Server } = require("socket.io");
 
 module.exports = (server, app) => {
@@ -14,6 +13,13 @@ module.exports = (server, app) => {
 
   const characterIo = io.of("/character");
   const videoIo = io.of("/video");
+
+  const makeRandomGenderImage = () => {
+    const randomImage = ["1.png", "2.png"];
+    const randomIndex = Math.floor(Math.random() * 2);
+
+    return randomImage[randomIndex];
+  };
 
   characterIo.on("connection", (socket) => {
     socket.onAny((event) => console.log(`Character Socket Event: ${event}`));
