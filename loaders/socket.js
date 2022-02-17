@@ -72,7 +72,7 @@ module.exports = (server) => {
         .emit("setCurrentUserPosition", characterIo["positions"]);
     });
 
-    socket.on("exitChattingRoom", (posIndex, roomId) => {
+    socket.on("exitChattingRoom", (posIndex) => {
       if (characterIo["positions"]) {
         const chairPosition = characterIo["positions"].find(
           (position) => position.posIndex === posIndex
@@ -83,7 +83,7 @@ module.exports = (server) => {
         characterIo["positions"].splice(index, 1, chairPosition);
 
         characterIo
-          .to(roomId)
+          .to(socket["roomId"])
           .emit("setCurrentUserPosition", characterIo["positions"]);
       }
     });
