@@ -40,7 +40,7 @@ module.exports = (server) => {
         characterIo[roomId].push(userInfo);
       }
 
-      if (seatObj[roomId]) {
+      if (Object.keys(seatObj).length > 0) {
         characterIo.to(roomId).emit("setCurrentUserPosition", seatObj[roomId]);
       }
 
@@ -49,7 +49,7 @@ module.exports = (server) => {
 
     socket.on("enterChattingRoom", (posIndex, x, y, roomId) => {
       if (posIndex) {
-        if (!seatObj[roomId]) {
+        if (seatObj[roomId].length === 0) {
           seatObj[roomId] = [];
           seatObj[roomId].push({ inToRoom: true, posIndex, x, y });
         } else {
@@ -106,7 +106,7 @@ module.exports = (server) => {
     });
 
     socket.on("exitUser", () => {
-      if (characterIo[socket["roomId"]]?.length > 0) {
+      if (characterIo[socket["roomId"]].length > 0) {
         characterIo[socket["roomId"]] = characterIo[socket["roomId"]].filter(
           (user) => {
             return user.id !== socket.id;
