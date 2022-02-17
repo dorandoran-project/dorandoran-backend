@@ -5,13 +5,13 @@ module.exports = (server) => {
     cors: {
       origin: process.env.CLIENT_URI,
       methods: ["GET", "POST"],
-      transports: ["websocket", "polling"],
       credentials: true,
     },
   });
 
   const characterIo = io.of("/character");
   const videoIo = io.of("/video");
+
   const makeRandomGenderImage = () => {
     const randomImage = ["1.png", "2.png"];
     const randomIndex = Math.floor(Math.random() * 2);
