@@ -5,6 +5,7 @@ module.exports = (server) => {
     cors: {
       origin: process.env.CLIENT_URI,
       methods: ["GET", "POST"],
+      transports: ["websocket", "polling"],
       credentials: true,
     },
   });
