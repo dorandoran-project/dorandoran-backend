@@ -18,7 +18,6 @@ module.exports = (server) => {
     return randomImage[randomIndex];
   };
 
-  const seatObj = {};
   characterIo.on("connection", (socket) => {
     socket.onAny((event) => console.log(`Character Socket Event: ${event}`));
 
@@ -40,8 +39,10 @@ module.exports = (server) => {
         characterIo[roomId].push(userInfo);
       }
 
-      if (Object.keys(seatObj).length > 0) {
-        characterIo.to(roomId).emit("setCurrentUserPosition", seatObj[roomId]);
+      if (characterIo["positions"]) {
+        characterIo
+          .to(roomId)
+          .emit("setCurrentUserPosition", characterIo["positions"]);
       }
 
       characterIo.to(roomId).emit("setCharacters", characterIo[roomId]);
@@ -49,38 +50,41 @@ module.exports = (server) => {
 
     socket.on("enterChattingRoom", (posIndex, x, y, roomId) => {
       if (posIndex) {
-        if (seatObj[roomId].length === 0) {
-          seatObj[roomId] = [];
-          seatObj[roomId].push({ inToRoom: true, posIndex, x, y });
+        if (!characterIo["positions"]) {
+          characterIo["positions"] = [{ inToRoom: true, posIndex, x, y }];
         } else {
-          const chairPosition = seatObj[roomId].find(
+          const chairPosition = characterIo["positions"].find(
             (position) => position.posIndex === posIndex
           );
 
           if (chairPosition) {
             chairPosition.inToRoom = true;
-            const index = seatObj[roomId].indexOf(chairPosition);
-            seatObj[roomId].splice(index, 1, chairPosition);
+            const index = characterIo["positions"].indexOf(chairPosition);
+            characterIo["positions"].splice(index, 1, chairPosition);
           } else {
-            seatObj[roomId].push({ inToRoom: true, posIndex, x, y });
+            characterIo["positions"].push({ inToRoom: true, posIndex, x, y });
           }
         }
       }
 
-      characterIo.to(roomId).emit("setCurrentUserPosition", seatObj[roomId]);
+      characterIo
+        .to(roomId)
+        .emit("setCurrentUserPosition", characterIo["positions"]);
     });
 
     socket.on("exitChattingRoom", (posIndex, roomId) => {
-      if (seatObj[roomId]) {
-        const chairPosition = seatObj[roomId].find(
+      if (characterIo["positions"]) {
+        const chairPosition = characterIo["positions"].find(
           (position) => position.posIndex === posIndex
         );
 
         chairPosition.inToRoom = false;
-        const index = seatObj[roomId].indexOf(chairPosition);
-        seatObj[roomId].splice(index, 1, chairPosition);
+        const index = characterIo["positions"].indexOf(chairPosition);
+        characterIo["positions"].splice(index, 1, chairPosition);
 
-        characterIo.to(roomId).emit("setCurrentUserPosition", seatObj[roomId]);
+        characterIo
+          .to(roomId)
+          .emit("setCurrentUserPosition", characterIo["positions"]);
       }
     });
 
@@ -106,7 +110,7 @@ module.exports = (server) => {
     });
 
     socket.on("exitUser", () => {
-      if (characterIo[socket["roomId"]].length > 0) {
+      if (characterIo[socket["roomId"]]?.length > 0) {
         characterIo[socket["roomId"]] = characterIo[socket["roomId"]].filter(
           (user) => {
             return user.id !== socket.id;
@@ -116,13 +120,7 @@ module.exports = (server) => {
         characterIo
           .to(socket["roomId"])
           .emit("setCharacters", characterIo[socket["roomId"]]);
-
-        if (characterIo[socket["roomId"]].length === 0) {
-          seatObj[socket["roomId"]] = null;
-        }
-
         socket.leave(socket["roomId"]);
-        socket["roomId"] = null;
       }
     });
   });
