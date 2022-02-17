@@ -122,14 +122,6 @@ module.exports = (server) => {
         socket.leave(socket["roomId"]);
       }
     });
-
-    socket.on("disconnecting", () => {
-      console.log("Character Socket Disconnecting");
-    });
-
-    socket.on("disconnect", () => {
-      console.log("Character Socket Disconnect");
-    });
   });
 
   const users = [];
