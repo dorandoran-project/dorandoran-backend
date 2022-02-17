@@ -1,6 +1,6 @@
 const { Server } = require("socket.io");
 
-module.exports = (server, app) => {
+module.exports = (server) => {
   const io = new Server(server, {
     cors: {
       origin: process.env.CLIENT_URI,
@@ -8,8 +8,6 @@ module.exports = (server, app) => {
       credentials: true,
     },
   });
-
-  app.set("io", io);
 
   const characterIo = io.of("/character");
   const videoIo = io.of("/video");
