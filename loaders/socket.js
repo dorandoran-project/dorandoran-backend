@@ -3,8 +3,7 @@ const { Server } = require("socket.io");
 module.exports = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: [process.env.CLIENT_URI],
-      methods: ["GET", "POST"],
+      origin: process.env.CLIENT_URI,
     },
   });
 
@@ -48,7 +47,7 @@ module.exports = (server) => {
       characterIo.to(roomId).emit("setCharacters", characterIo[roomId]);
     });
 
-    socket.on("enterChattingRoom", (posIndex, x, y, roomId) => {
+    socket.on("enterChattingRoom", (posIndex, x, y) => {
       if (posIndex) {
         if (!characterIo["positions"]) {
           characterIo["positions"] = [{ inToRoom: true, posIndex, x, y }];
@@ -68,7 +67,7 @@ module.exports = (server) => {
       }
 
       characterIo
-        .to(roomId)
+        .to(socket["roomId"])
         .emit("setCurrentUserPosition", characterIo["positions"]);
     });
 
@@ -122,14 +121,6 @@ module.exports = (server) => {
           .emit("setCharacters", characterIo[socket["roomId"]]);
         socket.leave(socket["roomId"]);
       }
-    });
-
-    socket.on("disconnecting", () => {
-      console.log("Character Socket Disconnecting");
-    });
-
-    socket.on("disconnect", () => {
-      console.log("Character Socket Disconnect");
     });
   });
 
