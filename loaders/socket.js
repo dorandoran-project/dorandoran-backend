@@ -18,7 +18,7 @@ module.exports = (server) => {
   };
 
   characterIo.on("connection", (socket) => {
-    socket.onAny((event) => console.log(`Character Socket Event: ${event}`));
+    // socket.onAny((event) => console.log(`Character Socket Event: ${event}`));
 
     socket.on("enterRoom", (userInfo) => {
       const { roomId } = userInfo;
@@ -47,7 +47,7 @@ module.exports = (server) => {
       characterIo.to(roomId).emit("setCharacters", characterIo[roomId]);
     });
 
-    socket.on("enterChattingRoom", (posIndex, x, y) => {
+    socket.on("enterChattingRoom", (posIndex, x, y, roomId) => {
       if (posIndex) {
         if (!characterIo["positions"]) {
           characterIo["positions"] = [{ inToRoom: true, posIndex, x, y }];
@@ -67,7 +67,7 @@ module.exports = (server) => {
       }
 
       characterIo
-        .to(socket["roomId"])
+        .to(roomId)
         .emit("setCurrentUserPosition", characterIo["positions"]);
     });
 
@@ -121,6 +121,14 @@ module.exports = (server) => {
           .emit("setCharacters", characterIo[socket["roomId"]]);
         socket.leave(socket["roomId"]);
       }
+    });
+
+    socket.on("disconnecting", () => {
+      console.log("Character Socket Disconnecting");
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Character Socket Disconnect");
     });
   });
 
