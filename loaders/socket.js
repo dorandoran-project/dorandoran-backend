@@ -19,7 +19,7 @@ module.exports = (server) => {
   };
 
   characterIo.on("connection", (socket) => {
-    socket.onAny((event) => console.log(`Character Socket Event: ${event}`));
+    // socket.onAny((event) => console.log(`Character Socket Event: ${event}`));
 
     socket.on("enterRoom", (userInfo) => {
       const { roomId } = userInfo;
@@ -33,103 +33,102 @@ module.exports = (server) => {
         userInfo.type = `${userInfo.type}male${makeRandomGenderImage()}`;
       }
 
-      if (!characterIo[roomId]) {
-        characterIo[roomId] = [userInfo];
+      if (!characterIo[roomId].members) {
+        characterIo[roomId].members = [userInfo];
       } else {
-        characterIo[roomId].push(userInfo);
+        characterIo[roomId].members.push(userInfo);
       }
 
-      if (characterIo["positions"]) {
+      if (characterIo[roomId].positions) {
         characterIo
           .to(roomId)
-          .emit("setCurrentUserPosition", characterIo["positions"]);
+          .emit("setCurrentUserPosition", characterIo[roomId].positions);
       }
 
-      characterIo.to(roomId).emit("setCharacters", characterIo[roomId]);
+      characterIo.to(roomId).emit("setCharacters", characterIo[roomId].members);
     });
 
     socket.on("enterChattingRoom", (posIndex, x, y, roomId) => {
       if (posIndex) {
-        if (!characterIo["positions"]) {
-          characterIo["positions"] = [{ inToRoom: true, posIndex, x, y }];
+        if (!characterIo[roomId].positions) {
+          characterIo[roomId].positions = [{ inToRoom: true, posIndex, x, y }];
         } else {
-          const chairPosition = characterIo["positions"].find(
+          const chairPosition = characterIo[roomId].positions.find(
             (position) => position.posIndex === posIndex
           );
 
           if (chairPosition) {
             chairPosition.inToRoom = true;
-            const index = characterIo["positions"].indexOf(chairPosition);
-            characterIo["positions"].splice(index, 1, chairPosition);
+            const index = characterIo[roomId].positions.indexOf(chairPosition);
+            characterIo[roomId].positions.splice(index, 1, chairPosition);
           } else {
-            characterIo["positions"].push({ inToRoom: true, posIndex, x, y });
+            characterIo[roomId].positions.push({
+              inToRoom: true,
+              posIndex,
+              x,
+              y,
+            });
           }
         }
       }
 
       characterIo
         .to(roomId)
-        .emit("setCurrentUserPosition", characterIo["positions"]);
+        .emit("setCurrentUserPosition", characterIo[roomId].positions);
     });
 
-    socket.on("exitChattingRoom", (posIndex) => {
-      if (characterIo["positions"]) {
-        const chairPosition = characterIo["positions"].find(
+    socket.on("exitChattingRoom", (posIndex, roomId) => {
+      if (characterIo[roomId].positions) {
+        const chairPosition = characterIo[roomId].positions.find(
           (position) => position.posIndex === posIndex
         );
 
         chairPosition.inToRoom = false;
-        const index = characterIo["positions"].indexOf(chairPosition);
-        characterIo["positions"].splice(index, 1, chairPosition);
+        const index = characterIo[roomId].positions.indexOf(chairPosition);
+        characterIo[roomId].positions.splice(index, 1, chairPosition);
 
         characterIo
           .to(socket["roomId"])
-          .emit("setCurrentUserPosition", characterIo["positions"]);
+          .emit("setCurrentUserPosition", characterIo[roomId].positions);
       }
     });
 
     socket.on("changeCurrentCharacter", (x, y, side, moveCount, isChatting) => {
-      if (characterIo[socket["roomId"]]) {
-        const player = characterIo[socket["roomId"]].find(
+      if (characterIo[socket["roomId"]].members) {
+        const player = characterIo[socket["roomId"]].members.find(
           (player) => player.id === socket.id
         );
 
-        const index = characterIo[socket["roomId"]].indexOf(player);
+        const index = characterIo[socket["roomId"]].members.indexOf(player);
         player.x = x;
         player.y = y;
         player.side = side;
         player.moveCount = moveCount;
         player.isChatting = isChatting;
 
-        characterIo[socket["roomId"]].splice(index, 1, player);
+        characterIo[socket["roomId"]].members.splice(index, 1, player);
 
         characterIo
           .to(socket["roomId"])
-          .emit("setCharacters", characterIo[socket["roomId"]]);
+          .emit("setCharacters", characterIo[socket["roomId"]].members);
       }
     });
 
     socket.on("exitUser", () => {
-      if (characterIo[socket["roomId"]]?.length > 0) {
-        characterIo[socket["roomId"]] = characterIo[socket["roomId"]].filter(
-          (user) => {
-            return user.id !== socket.id;
-          }
-        );
+      if (characterIo[socket["roomId"]].members?.length > 0) {
+        characterIo[socket["roomId"]].members = characterIo[
+          socket["roomId"]
+        ].members.filter((user) => {
+          return user.id !== socket.id;
+        });
 
         characterIo
           .to(socket["roomId"])
-          .emit("setCharacters", characterIo[socket["roomId"]]);
+          .emit("setCharacters", characterIo[socket["roomId"]].members);
         socket.leave(socket["roomId"]);
+
+        socket["roomId"] = null;
       }
-    });
-
-    socket.on("disconnecting", () => {
-      console.log("Character Socket Disconnecting");
-    });
-
-    socket.on("disconnect", () => {
-      console.log("Character Socket Disconnect");
     });
   });
 
