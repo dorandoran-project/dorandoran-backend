@@ -4,7 +4,6 @@ module.exports = (server) => {
   const io = new Server(server, {
     cors: {
       origin: process.env.CLIENT_URI,
-      credentials: true,
     },
   });
 
