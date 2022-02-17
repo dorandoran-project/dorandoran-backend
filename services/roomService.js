@@ -109,6 +109,7 @@ exports.deleteUserInfo = async (roomId, userId) => {
   }
 
   const communitys = await Community.find({}).exec();
+
   const localCommunity = communitys.find(
     (community) => community.name === room.address
   );
