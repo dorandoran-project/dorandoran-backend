@@ -8,6 +8,6 @@ router.get("/", authController.clear);
 
 router.post("/login", validateKakaoLogin, isLoggedIn, authController.login);
 
-router.get("/logout", isNotLoggedIn, authController.logout);
+router.get("/logout", isNotLoggedIn, authController.clear);
 
 module.exports = router;
