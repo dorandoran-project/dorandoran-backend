@@ -18,8 +18,6 @@ module.exports = (server) => {
   };
 
   characterIo.on("connection", (socket) => {
-    // socket.onAny((event) => console.log(`Character Socket Event: ${event}`));
-
     socket.on("enterRoom", (userInfo) => {
       const { roomId } = userInfo;
       socket.join(roomId);
@@ -58,7 +56,9 @@ module.exports = (server) => {
 
           if (chairPosition) {
             chairPosition.inToRoom = true;
+
             const index = characterIo["positions"].indexOf(chairPosition);
+
             characterIo["positions"].splice(index, 1, chairPosition);
           } else {
             characterIo["positions"].push({ inToRoom: true, posIndex, x, y });
@@ -78,7 +78,9 @@ module.exports = (server) => {
         );
 
         chairPosition.inToRoom = false;
+
         const index = characterIo["positions"].indexOf(chairPosition);
+
         characterIo["positions"].splice(index, 1, chairPosition);
 
         characterIo

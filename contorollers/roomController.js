@@ -57,7 +57,7 @@ exports.createRoom = async (req, res, next) => {
   }
 };
 
-exports.joinedUser = async (req, res, next) => {
+exports.joinUser = async (req, res, next) => {
   try {
     const currentRoom = req.body.currentRoom;
     const currentUser = req.body.currentUser;

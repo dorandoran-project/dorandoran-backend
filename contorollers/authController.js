@@ -58,9 +58,3 @@ exports.login = async (req, res, next) => {
     next(createError(401, { message: constants.ERROR_UNAUTHORIZE }));
   }
 };
-
-exports.logout = (req, res) => {
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
-  res.json({ success: constants.SUCCESS });
-};

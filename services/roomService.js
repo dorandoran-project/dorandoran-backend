@@ -40,6 +40,7 @@ exports.findOnePageRooms = (AllRooms, direction, index) => {
   const rooms = [];
   const lastIndex = index - 1;
   const prevRooms = AllRooms.slice();
+
   let nextRooms = AllRooms.slice(index, AllRooms.length);
   let i = lastIndex - 6;
 
@@ -64,9 +65,7 @@ exports.findOnePageRooms = (AllRooms, direction, index) => {
         }
 
         const room = prevRooms[i];
-
         i--;
-
         rooms.unshift(room);
       }
     }
