@@ -171,7 +171,7 @@ describe("roomController test", () => {
       });
 
       const res = createResponse();
-      const next = jest.fn(() => {});
+      const next = jest.fn(() => { });
       const currentRoom = req.body.currentRoom;
       const currentUser = req.body.currentUser;
 

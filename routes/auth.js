@@ -3,11 +3,18 @@ const router = express.Router();
 const authController = require("../contorollers/authController");
 const { isLoggedIn, isNotLoggedIn } = require("../middlewares/isLogged");
 const { validateKakaoLogin } = require("../middlewares/validate");
+const authorization = require("../middlewares/authorization");
 
 router.get("/", authController.clear);
 
-router.post("/login", validateKakaoLogin, isLoggedIn, authController.login);
+router.post(
+  "/login",
+  validateKakaoLogin,
+  isLoggedIn,
+  authorization,
+  authController.login
+);
 
-router.get("/logout", isNotLoggedIn, authController.clear);
+router.get("/logout", isNotLoggedIn, authorization, authController.clear);
 
 module.exports = router;

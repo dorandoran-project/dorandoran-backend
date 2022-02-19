@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const createError = require("http-errors");
 const constants = require("../utils/constants");
 
-exports.refresh = (req, res, next) => {
+const authorization = (req, res, next) => {
   try {
     const userEmail = jwt.verify(
       req.signedCookies.accessToken,
@@ -53,6 +53,9 @@ exports.refresh = (req, res, next) => {
 
     res.clearCookie("accessToken");
     res.clearCookie("refreshToken");
+
     next(createError(500, { message: constants.ERROR_INVALID_SERVER }));
   }
 };
+
+module.exports = authorization;
