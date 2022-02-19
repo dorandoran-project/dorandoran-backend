@@ -7,13 +7,7 @@ const authorization = require("../middlewares/authorization");
 
 router.get("/", authController.clear);
 
-router.post(
-  "/login",
-  validateKakaoLogin,
-  isLoggedIn,
-  authorization,
-  authController.login
-);
+router.post("/login", validateKakaoLogin, isLoggedIn, authController.login);
 
 router.get("/logout", isNotLoggedIn, authorization, authController.clear);
 
