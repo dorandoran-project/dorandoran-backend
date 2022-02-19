@@ -9,24 +9,53 @@ const {
   validateDetailRoom,
 } = require("../middlewares/validate");
 const { isNotLoggedIn } = require("../middlewares/isLogged");
+const authorization = require("../middlewares/authorization");
 
-router.get("/", isNotLoggedIn, roomController.init);
+router.get("/", isNotLoggedIn, authorization, roomController.init);
 
-router.post("/", validateRoom, isNotLoggedIn, roomController.getRooms);
+router.post(
+  "/",
+  validateRoom,
+  isNotLoggedIn,
+  authorization,
+  roomController.getRooms
+);
 
 router.post(
   "/refresh",
   validateRefreshRoom,
   isNotLoggedIn,
+  authorization,
   roomController.reload
 );
 
-router.post("/new", validateNewRoom, isNotLoggedIn, roomController.createRoom);
+router.post(
+  "/new",
+  validateNewRoom,
+  isNotLoggedIn,
+  authorization,
+  roomController.createRoom
+);
 
-router.post("/joinedUser", validateUserAndRoom, roomController.joinUser);
+router.post(
+  "/joinedUser",
+  validateUserAndRoom,
+  authorization,
+  roomController.joinUser
+);
 
-router.post("/deleteUser", validateUserAndRoom, roomController.deleteUser);
+router.post(
+  "/deleteUser",
+  validateUserAndRoom,
+  authorization,
+  roomController.deleteUser
+);
 
-router.post("/detail", validateDetailRoom, roomController.getCurrentRoom);
+router.post(
+  "/detail",
+  validateDetailRoom,
+  authorization,
+  roomController.getCurrentRoom
+);
 
 module.exports = router;
