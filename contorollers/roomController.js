@@ -42,16 +42,25 @@ exports.reload = async (req, res, next) => {
 exports.createRoom = async (req, res, next) => {
   try {
     const roomData = req.body.roomData;
-
     const roomNumber = await communityService.getLocationRoomCount(
       roomData.roomCreator.current_address
     );
-
     const newRoom = await roomService.createRoom(roomData, roomNumber);
 
     await communityService.addCommunityRoom(newRoom);
 
     res.status(200).json({ newRoom });
+  } catch (error) {
+    next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
+  }
+};
+
+exports.countUsers = async (req, res, next) => {
+  try {
+    const roomId = req.body.roomId;
+    const userCount = await roomService.getCountUser(roomId);
+
+    res.json({ userCount });
   } catch (error) {
     next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
   }
