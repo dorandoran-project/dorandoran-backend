@@ -4,14 +4,13 @@ const roomController = require("../../contorollers/roomController");
 const communityService = require("../../services/communityService");
 const rooms = require("../data/roomData.json");
 const roomMockData = require("../data/roomData.json");
-
 const {
   init,
   getRooms,
   reload,
   createRoom,
   countUsers,
-  joinedUser,
+  joinUser,
   deleteUser,
   getCurrentRoom,
 } = require("../../contorollers/roomController");
@@ -171,7 +170,7 @@ describe("roomController test", () => {
       });
 
       const res = createResponse();
-      const next = jest.fn(() => { });
+      const next = jest.fn();
       const currentRoom = req.body.currentRoom;
       const currentUser = req.body.currentUser;
 
@@ -179,7 +178,7 @@ describe("roomController test", () => {
         currentRoom, currentUser;
       });
 
-      await joinedUser(req, res, next);
+      await joinUser(req, res, next);
 
       expect(res.statusCode).toBe(200);
       expect(res._getJSONData()).toEqual({ success: "200_Success" });
