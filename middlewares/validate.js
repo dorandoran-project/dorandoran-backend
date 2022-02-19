@@ -44,6 +44,7 @@ exports.validateRefreshRoom = (req, res, next) => {
   const result = refreshJoiSchema.validate(req.body);
 
   if (result.error) {
+    console.log("validate error: ", result.error);
     return next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
   }
 
@@ -73,6 +74,21 @@ exports.validateUserAndRoom = (req, res, next) => {
   const result = currentRoomJoiSchema.validate(req.body);
 
   if (result.error) {
+    return next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
+  }
+
+  next();
+};
+
+const detailRoomJoiSchema = Joi.object().keys({
+  roomId: Joi.string().required(),
+});
+
+exports.validateDetailRoom = (req, res, next) => {
+  const result = detailRoomJoiSchema.validate(req.body);
+
+  if (result.error) {
+    console.log(result.error);
     return next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
   }
 

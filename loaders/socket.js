@@ -1,23 +1,23 @@
 const { Server } = require("socket.io");
-const makeRandomGenderImage = require("../utils/makeRandomGenderImage");
 
-module.exports = (server, app) => {
+module.exports = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: "http://localhost:3000",
-      methods: ["GET", "POST"],
-      credentials: true,
+      origin: process.env.CLIENT_URI,
     },
   });
-
-  app.set("io", io);
 
   const characterIo = io.of("/character");
   const videoIo = io.of("/video");
 
-  characterIo.on("connection", (socket) => {
-    // socket.onAny((event) => console.log(`Character Socket Event: ${event}`));
+  const makeRandomGenderImage = () => {
+    const randomImage = ["1.png", "2.png"];
+    const randomIndex = Math.floor(Math.random() * 2);
 
+    return randomImage[randomIndex];
+  };
+
+  characterIo.on("connection", (socket) => {
     socket.on("enterRoom", (userInfo) => {
       const { roomId } = userInfo;
       socket.join(roomId);
@@ -56,7 +56,9 @@ module.exports = (server, app) => {
 
           if (chairPosition) {
             chairPosition.inToRoom = true;
+
             const index = characterIo["positions"].indexOf(chairPosition);
+
             characterIo["positions"].splice(index, 1, chairPosition);
           } else {
             characterIo["positions"].push({ inToRoom: true, posIndex, x, y });
@@ -76,7 +78,9 @@ module.exports = (server, app) => {
         );
 
         chairPosition.inToRoom = false;
+
         const index = characterIo["positions"].indexOf(chairPosition);
+
         characterIo["positions"].splice(index, 1, chairPosition);
 
         characterIo
@@ -120,33 +124,42 @@ module.exports = (server, app) => {
         socket.leave(socket["roomId"]);
       }
     });
-
-    socket.on("disconnecting", () => {
-      console.log("Character Socket Disconnecting");
-    });
-
-    socket.on("disconnect", () => {
-      console.log("Character Socket Disconnect");
-    });
   });
 
   const users = [];
+  const participants = {};
+
   videoIo.on("connection", (socket) => {
     socket.onAny((event) => console.log(`Video Socket Event: ${event}`));
 
-    socket.on("enterRoom", (roomName) => {
-      socket.join(roomName);
+    socket.on("sendEvent", (payload) => {
+      socket.to(payload.target).emit("receiveEvent", {
+        sender: socket.id,
+        content: payload.content,
+      });
+    });
+
+    socket.on("enterRoom", (roomName, userName) => {
       users.push(socket.id);
+      socket.join(roomName);
       videoIo[socket.id] = roomName;
+      participants[socket.id] = userName;
 
       if (videoIo[roomName]) {
         videoIo[roomName].push(socket.id);
+        participants[roomName].push(userName);
       } else {
         videoIo[roomName] = [socket.id];
+        participants[roomName] = [userName];
       }
 
       const otherUsers = videoIo[roomName].filter((id) => id !== socket.id);
-      socket.emit("enterRoom", otherUsers);
+
+      if (otherUsers.length) {
+        socket.emit("enterRoom", otherUsers);
+      }
+
+      videoIo.to(roomName).emit("participants", participants);
     });
 
     socket.on("offer", (payload) => {
@@ -160,18 +173,26 @@ module.exports = (server, app) => {
       videoIo.to(payload.target).emit("answer", {
         signal: payload.signal,
         caller: socket.id,
+        userName: participants[socket.id],
       });
     });
 
-    socket.on("leaveRoom", () => {
+    socket.on("leaveRoom", (leaveUserName) => {
       const roomName = videoIo[socket.id];
 
       if (videoIo[roomName]) {
         videoIo[roomName] = videoIo[roomName].filter((id) => id !== socket.id);
       }
 
+      if (participants[roomName]) {
+        participants[roomName] = participants[roomName].filter((name) => {
+          name !== leaveUserName;
+        });
+      }
+
+      participants[socket.id] = undefined;
       videoIo[socket.id] = undefined;
-      socket.to(roomName).emit("exitRoom", socket.id);
+      socket.to(roomName).emit("exitRoom", socket.id, participants);
       socket.leave(roomName);
     });
 
@@ -186,8 +207,15 @@ module.exports = (server, app) => {
           );
         }
 
+        if (participants[roomName]) {
+          participants[roomName] = participants[roomName].filter((name) => {
+            return name !== participants[socket.id];
+          });
+        }
+
         socket.to(roomName).emit("exitRoom", socket.id);
         socket.leave(roomName);
+
         videoIo[socket.id] = undefined;
       }
     });

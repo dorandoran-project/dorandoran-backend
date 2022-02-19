@@ -3,7 +3,7 @@ const createError = require("http-errors");
 const authService = require("../services/authService");
 const constants = require("../utils/constants");
 
-exports.getUserInformation = (req, res) => {
+exports.clear = (req, res) => {
   res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
 
@@ -58,10 +58,4 @@ exports.login = async (req, res, next) => {
   } catch (err) {
     next(createError(401, { message: constants.ERROR_sUNAUTHORIZE }));
   }
-};
-
-exports.logout = (req, res) => {
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
-  res.json({ success: constants.SUCCESS });
 };
