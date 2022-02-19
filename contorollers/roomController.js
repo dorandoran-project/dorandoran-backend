@@ -42,11 +42,9 @@ exports.reload = async (req, res, next) => {
 exports.createRoom = async (req, res, next) => {
   try {
     const roomData = req.body.roomData;
-
     const roomNumber = await communityService.getLocationRoomCount(
       roomData.roomCreator.current_address
     );
-
     const newRoom = await roomService.createRoom(roomData, roomNumber);
 
     await communityService.addCommunityRoom(newRoom);
@@ -60,12 +58,7 @@ exports.createRoom = async (req, res, next) => {
 exports.countUsers = async (req, res, next) => {
   try {
     const roomId = req.body.roomId;
-
-    console.log(roomId);
-
     const userCount = await roomService.getCountUser(roomId);
-
-    console.log("userCount", userCount);
 
     res.json({ userCount });
   } catch (error) {

@@ -6,6 +6,7 @@ const constants = require("../utils/constants");
 exports.getUserInformation = (req, res) => {
   res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
+
   res.json({ success: constants.SUCCESS });
 };
 

@@ -4,10 +4,9 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "test": "jest"
+    "test": "jest --detectOpenHandles --watchAll --verbose"
   },
   "dependencies": {
-    "@socket.io/admin-ui": "^0.2.0",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
     "debug": "~2.6.9",
@@ -29,7 +28,6 @@
     "jest": "^27.5.1",
     "node-mocks-http": "^1.11.0",
     "nodemon": "^2.0.15",
-    "prettier": "^2.5.1",
-    "supertest": "^6.2.2"
+    "prettier": "^2.5.1"
   }
 }
