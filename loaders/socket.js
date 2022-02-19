@@ -215,7 +215,6 @@ module.exports = (server) => {
 
         socket.to(roomName).emit("exitRoom", socket.id);
         socket.leave(roomName);
-
         videoIo[socket.id] = undefined;
       }
     });
