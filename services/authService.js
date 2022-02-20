@@ -4,6 +4,11 @@ exports.getUser = async (email) => {
   return await User.findOne({ email });
 };
 
+exports.getAddress = async (email) => {
+  const user = await User.findOne({ email });
+  return user.current_address;
+};
+
 exports.createUser = async (userInfo) => {
   return await User.create({
     name: userInfo.name,

@@ -6,8 +6,8 @@ exports.getInitRooms = (allRooms) => {
   return allRooms.slice(0, 6);
 };
 
-exports.getRooms = async () => {
-  return await Room.find({}).populate("users").exec();
+exports.getRooms = async (address) => {
+  return await Room.find({ address }).populate("users").exec();
 };
 
 exports.getIndex = (id, rooms) => {
