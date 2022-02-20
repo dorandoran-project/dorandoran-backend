@@ -130,8 +130,6 @@ module.exports = (server) => {
   const participants = {};
 
   videoIo.on("connection", (socket) => {
-    socket.onAny((event) => console.log(`Video Socket Event: ${event}`));
-
     socket.on("sendEvent", (payload) => {
       socket.to(payload.target).emit("receiveEvent", {
         sender: socket.id,

@@ -44,7 +44,6 @@ exports.validateRefreshRoom = (req, res, next) => {
   const result = refreshJoiSchema.validate(req.body);
 
   if (result.error) {
-    console.log("validate error: ", result.error);
     return next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
   }
 
@@ -88,7 +87,6 @@ exports.validateDetailRoom = (req, res, next) => {
   const result = detailRoomJoiSchema.validate(req.body);
 
   if (result.error) {
-    console.log(result.error);
     return next(createError(400, { message: constants.ERROR_BAD_REQUEST }));
   }
 
