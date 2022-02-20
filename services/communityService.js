@@ -15,19 +15,20 @@ exports.getLocationRoomCount = async (address) => {
 
 exports.addCommunityRoom = async (room) => {
   const allCommunity = await Community.find({}).exec();
-  console.log("ROOM", room);
 
-  allCommunity.forEach(async (community) => {
-    if (community.name === room.address) {
-      community.rooms.push(room);
-      await community.save();
-      return;
-    } else {
-      await Community.create({
-        name: room.address,
-        rooms: [room],
-      });
-      return;
-    }
-  });
+  if (allCommunity.length) {
+    allCommunity.forEach(async (community) => {
+      if (community.name === room.address) {
+        community.rooms.push(room);
+        await community.save();
+        return;
+      }
+    });
+  } else {
+    await Community.create({
+      name: room.address,
+      rooms: [room],
+    });
+    return;
+  }
 };

@@ -36,7 +36,16 @@ exports.getRooms = async (req, res, next) => {
 exports.reload = async (req, res, next) => {
   try {
     let rooms = req.body.roomList;
-    rooms = await roomService.getUpdateRooms(rooms);
+
+    if (rooms.length) {
+      rooms = await roomService.getUpdateRooms(rooms);
+      rooms = rooms[0] === null ? [] : rooms;
+    } else {
+      const email = req.userInfo.email;
+      const address = await authService.getAddress(email);
+      const allRooms = await roomService.getRooms(address);
+      rooms = roomService.getInitRooms(allRooms);
+    }
 
     res.json({ rooms });
   } catch (error) {
