@@ -93,6 +93,7 @@ describe("auth Controller test", () => {
         res.cookies = jest.fn(() => cookie);
 
         res.cookie("accessToken", cookie.accessToken, cookie.options);
+
         expect(res).toHaveProperty("cookies");
         expect(res.cookies()).toEqual(cookie);
       });
@@ -110,6 +111,7 @@ describe("auth Controller test", () => {
         res.cookies = jest.fn(() => cookie);
 
         res.cookie("refreshToken", cookie.refreshToken, cookie.options);
+
         expect(res).toHaveProperty("cookies");
         expect(res.cookies()).toEqual(cookie);
       });

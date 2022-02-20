@@ -40,6 +40,7 @@ router.post(
 router.post(
   "/joinedUser",
   validateUserAndRoom,
+  isNotLoggedIn,
   authorization,
   roomController.joinUser
 );
@@ -47,6 +48,7 @@ router.post(
 router.post(
   "/deleteUser",
   validateUserAndRoom,
+  isNotLoggedIn,
   authorization,
   roomController.deleteUser
 );
@@ -54,6 +56,7 @@ router.post(
 router.post(
   "/detail",
   validateDetailRoom,
+  isNotLoggedIn,
   authorization,
   roomController.getCurrentRoom
 );
