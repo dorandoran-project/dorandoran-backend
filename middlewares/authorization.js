@@ -9,7 +9,7 @@ const authorization = (req, res, next) => {
       process.env.JWT_ACCESS_TOKEN_SECRET
     );
 
-    req.userEmail = userEmail;
+    req.userInfo = userEmail;
 
     next();
   } catch (error) {
@@ -20,7 +20,7 @@ const authorization = (req, res, next) => {
           process.env.JWT_REFRESH_TOKEN_SECRET
         );
 
-        req.userEmail = userEmail;
+        req.userInfo = userEmail;
 
         res.cookie("accessToken", req.signedCookies.refreshToken, {
           httpOnly: true,
