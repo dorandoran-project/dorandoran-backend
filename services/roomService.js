@@ -40,6 +40,7 @@ exports.findOnePageRooms = (AllRooms, direction, index) => {
   const rooms = [];
   const lastIndex = index - 1;
   const prevRooms = AllRooms.slice();
+
   let nextRooms = AllRooms.slice(index, AllRooms.length);
   let i = lastIndex - 6;
 
@@ -64,9 +65,7 @@ exports.findOnePageRooms = (AllRooms, direction, index) => {
         }
 
         const room = prevRooms[i];
-
         i--;
-
         rooms.unshift(room);
       }
     }
@@ -84,6 +83,12 @@ exports.createRoom = async (roomData, roomNumber) => {
   });
 
   return newRoom;
+};
+
+exports.getCountUser = async (id) => {
+  const count = await Room.findOne({ _id: id }).exec();
+
+  return count.users.length;
 };
 
 exports.getCurrentRoom = async (room, user) => {
@@ -109,6 +114,7 @@ exports.deleteUserInfo = async (roomId, userId) => {
   }
 
   const communitys = await Community.find({}).exec();
+
   const localCommunity = communitys.find(
     (community) => community.name === room.address
   );

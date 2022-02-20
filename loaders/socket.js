@@ -4,8 +4,6 @@ module.exports = (server) => {
   const io = new Server(server, {
     cors: {
       origin: process.env.CLIENT_URI,
-      methods: ["GET", "POST"],
-      credentials: true,
     },
   });
 
@@ -18,9 +16,14 @@ module.exports = (server) => {
     return randomImage[randomIndex];
   };
 
-  characterIo.on("connection", (socket) => {
-    socket.onAny((event) => console.log(`Character Socket Event: ${event}`));
+  const makeRandomGenderImage = () => {
+    const randomImage = ["1.png", "2.png"];
+    const randomIndex = Math.floor(Math.random() * 2);
 
+    return randomImage[randomIndex];
+  };
+
+  characterIo.on("connection", (socket) => {
     socket.on("enterRoom", (userInfo) => {
       const { roomId } = userInfo;
       socket.join(roomId);
@@ -59,7 +62,9 @@ module.exports = (server) => {
 
           if (chairPosition) {
             chairPosition.inToRoom = true;
+
             const index = characterIo["positions"].indexOf(chairPosition);
+
             characterIo["positions"].splice(index, 1, chairPosition);
           } else {
             characterIo["positions"].push({ inToRoom: true, posIndex, x, y });
@@ -79,7 +84,9 @@ module.exports = (server) => {
         );
 
         chairPosition.inToRoom = false;
+
         const index = characterIo["positions"].indexOf(chairPosition);
+
         characterIo["positions"].splice(index, 1, chairPosition);
 
         characterIo
@@ -122,14 +129,6 @@ module.exports = (server) => {
           .emit("setCharacters", characterIo[socket["roomId"]]);
         socket.leave(socket["roomId"]);
       }
-    });
-
-    socket.on("disconnecting", () => {
-      console.log("Character Socket Disconnecting");
-    });
-
-    socket.on("disconnect", () => {
-      console.log("Character Socket Disconnect");
     });
   });
 

@@ -6,6 +6,7 @@ const constants = require("../utils/constants");
 exports.clear = (req, res) => {
   res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
+
   res.json({ success: constants.SUCCESS });
 };
 
@@ -57,10 +58,4 @@ exports.login = async (req, res, next) => {
   } catch (err) {
     next(createError(401, { message: constants.ERROR_UNAUTHORIZE }));
   }
-};
-
-exports.logout = (req, res) => {
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
-  res.json({ success: constants.SUCCESS });
 };
