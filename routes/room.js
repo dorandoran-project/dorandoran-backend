@@ -9,15 +9,15 @@ const {
   validateDetailRoom,
 } = require("../middlewares/validate");
 const { isNotLoggedIn } = require("../middlewares/isLogged");
-const authorization = require("../middlewares/authorization");
+const authorize = require("../middlewares/authorize");
 
-router.get("/", isNotLoggedIn, authorization, roomController.init);
+router.get("/", isNotLoggedIn, authorize, roomController.init);
 
 router.post(
   "/",
   validateRoom,
   isNotLoggedIn,
-  authorization,
+  authorize,
   roomController.getRooms
 );
 
@@ -25,7 +25,7 @@ router.post(
   "/refresh",
   validateRefreshRoom,
   isNotLoggedIn,
-  authorization,
+  authorize,
   roomController.reload
 );
 
@@ -33,7 +33,7 @@ router.post(
   "/new",
   validateNewRoom,
   isNotLoggedIn,
-  authorization,
+  authorize,
   roomController.createRoom
 );
 
@@ -41,7 +41,7 @@ router.post(
   "/joinedUser",
   validateUserAndRoom,
   isNotLoggedIn,
-  authorization,
+  authorize,
   roomController.joinUser
 );
 
@@ -49,7 +49,7 @@ router.post(
   "/deleteUser",
   validateUserAndRoom,
   isNotLoggedIn,
-  authorization,
+  authorize,
   roomController.deleteUser
 );
 
@@ -57,7 +57,7 @@ router.post(
   "/detail",
   validateDetailRoom,
   isNotLoggedIn,
-  authorization,
+  authorize,
   roomController.getCurrentRoom
 );
 

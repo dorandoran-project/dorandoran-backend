@@ -1,8 +1,18 @@
-{
+[
+  {
   "name": "한소철",
   "email": "hansochil@gmail.com",
   "profile": "http://k.kakaocdn.net/dn/dpk9l1/btqmGhA2lKL/Oz0wDuJn1YV2DIn92f6DVK/img_640x640.jpg",
   "age_range": "70~79",
   "gender": "male",
   "current_address": "서울 강남구"
-}
+  },
+  {
+    "name": "김철수",
+    "email": "sample12@example.com",
+    "profile": "profileImg",
+    "age_range": "10~20",
+    "gender": "male",
+    "current_address": "서울 송파구"
+  }
+]

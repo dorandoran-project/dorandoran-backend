@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const createError = require("http-errors");
 const constants = require("../utils/constants");
 
-const authorization = (req, res, next) => {
+const authorize = (req, res, next) => {
   try {
     const userEmail = jwt.verify(
       req.signedCookies.accessToken,
@@ -58,4 +58,4 @@ const authorization = (req, res, next) => {
   }
 };
 
-module.exports = authorization;
+module.exports = authorize;
