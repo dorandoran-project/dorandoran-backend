@@ -1,11 +1,14 @@
 const createError = require("http-errors");
 const communityService = require("../services/communityService");
 const roomService = require("../services/roomService");
+const authService = require("../services/authService");
 const constants = require("../utils/constants");
 
 exports.init = async (req, res, next) => {
   try {
-    const allRooms = await roomService.getRooms();
+    const email = req.userInfo.email;
+    const address = await authService.getAddress(email);
+    const allRooms = await roomService.getRooms(address);
     const rooms = roomService.getInitRooms(allRooms);
 
     res.json({ rooms });
@@ -16,7 +19,9 @@ exports.init = async (req, res, next) => {
 
 exports.getRooms = async (req, res, next) => {
   try {
-    const roomTotalData = await roomService.getRooms();
+    const email = req.userInfo.email;
+    const address = await authService.getAddress(email);
+    const roomTotalData = await roomService.getRooms(address);
     const lastRoom = req.body.lastRoom;
     const direction = req.body.direction;
     const index = roomService.getIndex(lastRoom._id, roomTotalData);
@@ -31,7 +36,16 @@ exports.getRooms = async (req, res, next) => {
 exports.reload = async (req, res, next) => {
   try {
     let rooms = req.body.roomList;
-    rooms = await roomService.getUpdateRooms(rooms);
+
+    if (rooms.length) {
+      rooms = await roomService.getUpdateRooms(rooms);
+      rooms = rooms[0] === null ? [] : rooms;
+    } else {
+      const email = req.userInfo.email;
+      const address = await authService.getAddress(email);
+      const allRooms = await roomService.getRooms(address);
+      rooms = roomService.getInitRooms(allRooms);
+    }
 
     res.json({ rooms });
   } catch (error) {
@@ -42,9 +56,11 @@ exports.reload = async (req, res, next) => {
 exports.createRoom = async (req, res, next) => {
   try {
     const roomData = req.body.roomData;
+
     const roomNumber = await communityService.getLocationRoomCount(
       roomData.roomCreator.current_address
     );
+
     const newRoom = await roomService.createRoom(roomData, roomNumber);
 
     await communityService.addCommunityRoom(newRoom);

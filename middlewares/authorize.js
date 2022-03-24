@@ -2,14 +2,14 @@ const jwt = require("jsonwebtoken");
 const createError = require("http-errors");
 const constants = require("../utils/constants");
 
-const authorization = (req, res, next) => {
+const authorize = (req, res, next) => {
   try {
     const userEmail = jwt.verify(
       req.signedCookies.accessToken,
       process.env.JWT_ACCESS_TOKEN_SECRET
     );
 
-    req.userEmail = userEmail;
+    req.userInfo = userEmail;
 
     next();
   } catch (error) {
@@ -20,7 +20,7 @@ const authorization = (req, res, next) => {
           process.env.JWT_REFRESH_TOKEN_SECRET
         );
 
-        req.userEmail = userEmail;
+        req.userInfo = userEmail;
 
         res.cookie("accessToken", req.signedCookies.refreshToken, {
           httpOnly: true,
@@ -58,4 +58,4 @@ const authorization = (req, res, next) => {
   }
 };
 
-module.exports = authorization;
+module.exports = authorize;

@@ -1,25 +1,33 @@
 const { createRequest, createResponse } = require("node-mocks-http");
+const authService = require("../../services/authService");
 const roomService = require("../../services/roomService");
-const roomController = require("../../contorollers/roomController");
 const communityService = require("../../services/communityService");
+const roomController = require("../../contorollers/roomController");
 const rooms = require("../data/roomData.json");
-const roomMockData = require("../data/roomData.json");
-const {
-  init,
-  getRooms,
-  reload,
-  createRoom,
-  countUsers,
-  joinUser,
-  deleteUser,
-  getCurrentRoom,
-} = require("../../contorollers/roomController");
 
+jest.mock("../../services/authService");
 jest.mock("../../services/roomService");
 jest.mock("../../services/communityService");
 jest.mock("../../models/Room.js");
 
 describe("roomController test", () => {
+  let userInfo;
+
+  beforeEach(() => {
+    userInfo = {
+      name: "김소영",
+      email: "sample12@example.com",
+      profile: "profileImg",
+      age_range: "10~20",
+      gender: "male",
+      current_address: "서울 강남구",
+    };
+  });
+
+  afterEach(function () {
+    userInfo = null;
+  });
+
   describe("GET /init", () => {
     it("roomController의 init이 함수가 맞는지 type을 체크한다", () => {
       expect(typeof roomController.init).toBe("function");
@@ -29,18 +37,21 @@ describe("roomController test", () => {
       const req = createRequest({
         url: "/rooms",
         method: "GET",
+        userInfo,
       });
+
       const res = createResponse();
+      const next = jest.fn(() => (400, { message: "400_Bad_Request" }));
+
+      authService.getAddress = async () => userInfo.current_address;
       roomService.getRooms = async () => rooms;
-
-      roomService.getInitRooms = jest.fn((allRooms) => {
+      roomService.getInitRooms = (allRooms) => {
         return allRooms.slice(0, 6);
-      });
+      };
 
-      await init(req, res);
+      await roomController.init(req, res, next);
 
       expect(res._getJSONData()).toStrictEqual({ rooms });
-
       expect(res._isJSON()).toBe(true);
     });
   });
@@ -50,15 +61,19 @@ describe("roomController test", () => {
       const req = createRequest({
         url: "/rooms",
         body: {
-          lastRoom: roomMockData[0],
+          lastRoom: rooms[0],
           direction: "next",
         },
         method: "POST",
+        userInfo,
       });
-      const res = createResponse();
-      const next = jest.fn();
 
+      const res = createResponse();
+      const next = jest.fn(() => (400, { message: "400_Bad_Request" }));
+
+      authService.getAddress = async () => userInfo.current_address;
       roomService.getRooms = async () => rooms;
+
       const lastRoom = req.body.lastRoom;
       const direction = req.body.direction;
       const index = (roomService.getIndex = jest
@@ -69,7 +84,7 @@ describe("roomController test", () => {
         .fn()
         .mockReturnValue(rooms, direction, index);
 
-      await getRooms(req, res, next);
+      await roomController.getRooms(req, res, next);
 
       expect(res._getData()).toEqual(JSON.stringify({ rooms }));
     });
@@ -80,15 +95,18 @@ describe("roomController test", () => {
       const req = createRequest({
         url: "/rooms/refresh",
         body: {
-          roomList: roomMockData,
+          roomList: rooms,
         },
         method: "POST",
       });
-      const res = createResponse();
-      const rooms = req.body.roomList;
-      roomService.getUpdateRooms = async () => rooms;
 
-      await reload(req, res);
+      const res = createResponse();
+      const next = jest.fn(() => (401, { message: "401_Unauthorized" }));
+      const roomList = req.body.roomList;
+
+      roomService.getUpdateRooms = async () => roomList;
+
+      await roomController.reload(req, res, next);
 
       expect(res.statusCode).toBe(200);
       expect(res._getData()).toEqual(JSON.stringify({ rooms }));
@@ -117,9 +135,9 @@ describe("roomController test", () => {
       });
 
       const res = createResponse();
-      const next = jest.fn();
-
+      const next = jest.fn(() => (400, { message: "400_Bad_Request" }));
       const roomData = req.body.roomData;
+
       const roomNumber = (communityService.getLocationRoomCount = jest
         .fn()
         .mockReturnValue(6));
@@ -131,7 +149,7 @@ describe("roomController test", () => {
 
       communityService.addCommunityRoom = jest.fn(() => newRoom());
 
-      await createRoom(req, res, next);
+      await roomController.createRoom(req, res, next);
 
       expect(res.statusCode).toBe(200);
       expect(res._getJSONData()).toHaveProperty("newRoom");
@@ -148,10 +166,11 @@ describe("roomController test", () => {
         method: "POST",
       });
       const res = createResponse();
+      const next = jest.fn(() => (400, { message: "400_Bad_Request" }));
 
       roomService.getCountUser = jest.fn().mockReturnValue(2);
 
-      await countUsers(req, res);
+      await roomController.countUsers(req, res, next);
 
       expect(res.statusCode).toBe(200);
       expect(res._getJSONData()).toHaveProperty("userCount", 2);
@@ -170,7 +189,7 @@ describe("roomController test", () => {
       });
 
       const res = createResponse();
-      const next = jest.fn();
+      const next = jest.fn(() => (400, { message: "400_Bad_Request" }));
       const currentRoom = req.body.currentRoom;
       const currentUser = req.body.currentUser;
 
@@ -178,7 +197,7 @@ describe("roomController test", () => {
         currentRoom, currentUser;
       });
 
-      await joinUser(req, res, next);
+      await roomController.joinUser(req, res, next);
 
       expect(res.statusCode).toBe(200);
       expect(res._getJSONData()).toEqual({ success: "200_Success" });
@@ -197,6 +216,7 @@ describe("roomController test", () => {
       });
 
       const res = createResponse();
+      const next = jest.fn(() => (400, { message: "400_Bad_Request" }));
       const currentRoom = req.body.currentRoom;
       const currentUser = req.body.currentUser;
 
@@ -204,7 +224,7 @@ describe("roomController test", () => {
         currentRoom, currentUser;
       });
 
-      await deleteUser(req, res);
+      await roomController.deleteUser(req, res, next);
 
       expect(res.statusCode).toBe(200);
       expect(res._getData()).toEqual(
@@ -218,19 +238,20 @@ describe("roomController test", () => {
       const req = createRequest({
         url: "/rooms/detail",
         body: {
-          roomId: roomMockData[0]._id,
+          roomId: rooms[0]._id,
         },
         method: "POST",
       });
 
       const res = createResponse();
+      const next = jest.fn(() => (400, { message: "400_Bad_Request" }));
       const roomId = req.body.roomId;
 
       roomService.getUsers = jest.fn(() => {
         roomId;
       });
 
-      await getCurrentRoom(req, res);
+      await roomController.getCurrentRoom(req, res, next);
 
       expect(res.statusCode).toBe(200);
       expect(res._isEndCalled()).toBeTruthy();
