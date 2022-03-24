@@ -99,6 +99,7 @@ describe("roomController test", () => {
         },
         method: "POST",
       });
+
       const res = createResponse();
       const next = jest.fn(() => (401, { message: "401_Unauthorized" }));
       const roomList = req.body.roomList;
@@ -135,8 +136,8 @@ describe("roomController test", () => {
 
       const res = createResponse();
       const next = jest.fn(() => (400, { message: "400_Bad_Request" }));
-
       const roomData = req.body.roomData;
+
       const roomNumber = (communityService.getLocationRoomCount = jest
         .fn()
         .mockReturnValue(6));
