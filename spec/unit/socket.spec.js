@@ -45,6 +45,7 @@ describe("Socket Test", () => {
 
     clientSocket.emit("enterRoom", (userInfo) => {
       const { roomId } = userInfo;
+
       serverSocket.join(roomId);
       serverSocket["roomId"] = roomId;
       userInfo.id = clientSocket.id;
