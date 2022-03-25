@@ -87,7 +87,7 @@ exports.joinUser = async (req, res, next) => {
     const currentRoom = req.body.currentRoom;
     const currentUser = req.body.currentUser;
 
-    await roomService.getCurrentRoom(currentRoom, currentUser);
+    await roomService.updateCurrentRoom(currentRoom, currentUser);
 
     res.status(200).json({ success: constants.SUCCESS });
   } catch (error) {
