@@ -10,7 +10,7 @@ jest.mock("../../services/roomService");
 jest.mock("../../services/communityService");
 jest.mock("../../models/Room.js");
 
-describe("roomController test", () => {
+describe("RoomController Test", () => {
   let userInfo;
 
   beforeEach(() => {

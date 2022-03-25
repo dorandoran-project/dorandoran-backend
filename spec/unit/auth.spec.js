@@ -6,7 +6,7 @@ const users = require("../../spec/data/userData.json");
 jest.mock("../../services/authService");
 jest.mock("../../models/User");
 
-describe("auth Controller test", () => {
+describe("AuthController Test", () => {
   describe("GET /clear", () => {
     it("clear이 함수가 맞는데 typeof를 체크한다", () => {
       expect(typeof authController.clear).toBe("function");
