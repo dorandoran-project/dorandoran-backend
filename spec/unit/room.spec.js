@@ -193,7 +193,7 @@ describe("RoomController Test", () => {
       const currentRoom = req.body.currentRoom;
       const currentUser = req.body.currentUser;
 
-      roomService.getCurrentRoom = jest.fn(() => {
+      roomService.updateCurrentRoom = jest.fn(() => {
         currentRoom, currentUser;
       });
 

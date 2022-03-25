@@ -91,7 +91,7 @@ exports.getCountUser = async (id) => {
   return count.users.length;
 };
 
-exports.getCurrentRoom = async (room, user) => {
+exports.updateCurrentRoom = async (room, user) => {
   const currentUser = await User.findById({ _id: user }).exec();
   const currentRoom = await Room.find({ _id: room }).populate("users").exec();
 
